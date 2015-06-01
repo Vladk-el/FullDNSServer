@@ -21,6 +21,12 @@ public class Config {
 	
 	public static final String NAME = "name";
 	
+	public static final String DOCUMENT_ROOT = "document_root";
+	
+	public static final String USER_AGENT = "User-Agent: ";
+	
+	public static final String HOST = "Host: ";
+	
 
 	private static final String DOMAIN = "domain";
 
@@ -96,7 +102,7 @@ public class Config {
 					sb.append(key);
 					sb.append("=");
 					sb.append(properties.get(type).get(id).get(key));
-					logger.info(sb.toString());
+//					logger.info(sb.toString());
 				}
 			}
 		}

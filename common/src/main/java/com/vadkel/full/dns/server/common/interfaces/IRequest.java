@@ -4,4 +4,6 @@ public interface IRequest {
 	
 	void init();
 	
+	void parse(String [] lines);
+	
 }

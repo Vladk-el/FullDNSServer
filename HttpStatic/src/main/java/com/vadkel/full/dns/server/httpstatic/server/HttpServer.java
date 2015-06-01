@@ -20,8 +20,7 @@ import com.vadkel.full.dns.server.common.utils.config.ConfigReader;
  */
 public class HttpServer implements IServer {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(HttpServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
 	private Config conf;
 
@@ -46,28 +45,31 @@ public class HttpServer implements IServer {
 	public void run() {
 		ServerSocket server = null;
 		Socket client = null;
-		
+
 		try {
-			server = new ServerSocket(Integer.parseInt(conf.get(Config.Type.worker.toString(), Config.PORT)));
-			logger.info("worker {} is now online and wait for connections . . . ", conf.get(Config.Type.worker.toString(), Config.NAME));
-			
-			while(true) {
+			server = new ServerSocket(Integer.parseInt(conf.get(
+					Config.Type.worker.toString(), Config.PORT)));
+			logger.info(
+					"worker {} is now online and wait for connections . . . ",
+					conf.get(Config.Type.worker.toString(), Config.NAME));
+
+			while (true) {
 				try {
 					client = server.accept();
 					System.out.println("client " + client + " connected");
 					handle(client);
-				} catch(Exception e){
+				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
 					System.out.println("client " + client + " disconnected");
 					client.close();
 				}
 			}
-			
-		} catch(Exception e) {
+
+		} catch (Exception e) {
 			logger.error("Error on run() method : ", e);
 		} finally {
-			if(server != null){
+			if (server != null) {
 				try {
 					server.close();
 					System.out.println("server offline");
