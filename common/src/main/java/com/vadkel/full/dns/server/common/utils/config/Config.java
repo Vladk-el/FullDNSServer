@@ -17,6 +17,10 @@ public class Config {
 
 	public static final String DEFAULT_CONFIG_PATH = "conf/config.ini";
 	
+	public static final String SESSION_ID_COOKIE_NAME = "VLADKELHttpStatic";
+	
+	public static final String TIMEOUT = "timeout";
+	
 	public static final String PORT = "port";
 	
 	public static final String NAME = "name";
@@ -28,6 +32,8 @@ public class Config {
 	public static final String HOST = "Host: ";
 	
 	public static final String COOKIE = "Cookie: ";
+	
+	public static final String SET_COOKIE = "Set-Cookie: ";
 	
 	public static final String PATH = "Path: ";
 	

@@ -20,6 +20,8 @@ public class Request implements IRequest {
 
 	private Socket socket;
 	
+	private String sessionId;
+	
 	private String host;
 	
 	private String userAgent;
@@ -113,6 +115,9 @@ public class Request implements IRequest {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Request : " + "\n");
 		
+		sb.append("\t" + "SESSION ID :" + "\n");
+			sb.append("\t\t" + getSessionId() + "\n");
+		
 		sb.append("\t" + Config.HOST + "\n");
 			sb.append("\t\t" + getHost() + "\n");
 		
@@ -141,6 +146,14 @@ public class Request implements IRequest {
 
 	public void setSocket(Socket socket) {
 		this.socket = socket;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 
 	public String getHost() {

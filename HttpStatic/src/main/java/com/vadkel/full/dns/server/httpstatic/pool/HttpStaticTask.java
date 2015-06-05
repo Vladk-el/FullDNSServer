@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.vadkel.full.dns.server.common.interfaces.IWorkerTask;
 import com.vadkel.full.dns.server.common.model.Request;
 import com.vadkel.full.dns.server.common.utils.config.Config;
+import com.vadkel.full.dns.server.common.utils.session.SessionUtils;
 import com.vadkel.full.dns.server.httpstatic.server.HttpServer;
 
 public class HttpStaticTask implements IWorkerTask {
@@ -74,6 +75,12 @@ public class HttpStaticTask implements IWorkerTask {
 				// Header 
 				request.getWriter().writeBytes("HTTP/1.1 200 OK\r\n");
 				
+				// TODO
+				// add cookies
+				/*request.getWriter().writeBytes(
+							"hh"
+						);*/
+				
 				if(file.isDirectory()) {
 					showDirectory(file, request);
 				} else if(file.isFile()) {
@@ -119,7 +126,6 @@ public class HttpStaticTask implements IWorkerTask {
 			sb.append(f.getName());
 			sb.append("</a></p>");
 
-			System.out.println(sb.toString());
 			request.getWriter().write(sb.toString().getBytes());
 		}
 	}
