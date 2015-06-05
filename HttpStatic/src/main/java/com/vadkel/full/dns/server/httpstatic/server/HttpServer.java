@@ -12,6 +12,9 @@ import com.vadkel.full.dns.server.common.interfaces.IServer;
 import com.vadkel.full.dns.server.common.model.Request;
 import com.vadkel.full.dns.server.common.utils.config.Config;
 import com.vadkel.full.dns.server.common.utils.config.ConfigReader;
+import com.vadkel.full.dns.server.httpstatic.pool.HttpStaticTask;
+import com.vadkel.full.dns.server.threadpool.interfaces.IPool;
+import com.vadkel.full.dns.server.threadpool.model.Pool;
 
 /**
  * 
@@ -23,21 +26,28 @@ public class HttpServer implements IServer {
 	private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
 	private Config conf;
+	
+	private IPool pool;
 
 	public HttpServer() {
-		init();
-		run();
+		if(init()){
+			run();
+		}
 	}
 
 	@Override
-	public void init() {
+	public boolean init() {
 		setConf(null);
+		pool = new Pool();
+		
 		try {
 			ConfigReader cr = new ConfigReader(new File("./").getAbsolutePath());
 			setConf(cr.read());
 			getConf().show();
+			return true;
 		} catch (Exception e) {
 			logger.error("Error on loading config.ini : ", e);
+			return false;
 		}
 	}
 
@@ -56,14 +66,14 @@ public class HttpServer implements IServer {
 			while (true) {
 				try {
 					client = server.accept();
-					System.out.println("client " + client + " connected");
+					logger.info("client " + client + " connected");
 					handle(client);
 				} catch (Exception e) {
 					e.printStackTrace();
-				} finally {
-					System.out.println("client " + client + " disconnected");
+				} /*finally {
+					logger.info("client " + client + " disconnected\n");
 					client.close();
-				}
+				}*/
 			}
 
 		} catch (Exception e) {
@@ -72,7 +82,7 @@ public class HttpServer implements IServer {
 			if (server != null) {
 				try {
 					server.close();
-					System.out.println("server offline");
+					logger.info("server offline");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -82,9 +92,13 @@ public class HttpServer implements IServer {
 
 	@Override
 	public void handle(Socket client) {
-		Request request = new Request(client);
+		
+		pool.addJob(new HttpStaticTask(this, client));
+		
+		/*Request request = new Request(client);
+		request.show();
 		manageSession(request);
-		execute(request);
+		execute(request);*/
 	}
 
 	@Override

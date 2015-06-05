@@ -27,6 +27,8 @@ public class Config {
 	
 	public static final String HOST = "Host: ";
 	
+	public static final String COOKIE = "Cookie: ";
+	
 
 	private static final String DOMAIN = "domain";
 
