@@ -1,5 +1,7 @@
 package com.vadkel.full.dns.server.httpstatic.pool;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vadkel.full.dns.server.common.interfaces.IWorkerTask;
 import com.vadkel.full.dns.server.common.model.Request;
+import com.vadkel.full.dns.server.common.utils.config.Config;
 import com.vadkel.full.dns.server.httpstatic.server.HttpServer;
 
 public class HttpStaticTask implements IWorkerTask {
@@ -31,18 +34,21 @@ public class HttpStaticTask implements IWorkerTask {
 	
 	public void handle() {
 		Request request = new Request(socket);
-		request.show();
-		manageSession(request);
-		execute(request);
-		
-		if(socket != null && !socket.isClosed()){
-			try {
-				socket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if(request.init()) { 
+			request.show();
+			manageSession(request);
+			execute(request);
+			
+			if(socket != null && !socket.isClosed()){
+				try {
+					socket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
+		
 	}
 
 	public void manageSession(Request request) {
@@ -51,8 +57,87 @@ public class HttpStaticTask implements IWorkerTask {
 	}
 
 	public void execute(Request request) {
-		// TODO Auto-generated method stub
 
+		File file = new File(
+				server.getConf().get(
+						Config.DOMAIN,
+						server.getConf().getNumberByTypeKeyValue(
+							Config.DOMAIN, Config.NAME, request.getHost()
+						),
+						Config.DOCUMENT_ROOT
+					) + 
+					request.getPath()
+				);
+				
+		if(file.exists()) {
+			try {
+				// Header 
+				request.getWriter().writeBytes("HTTP/1.1 200 OK\r\n");
+				
+				if(file.isDirectory()) {
+					showDirectory(file, request);
+				} else if(file.isFile()) {
+					downloadFile(file, request);
+				}
+				request.getWriter().flush();
+			} catch(Exception e) {
+				logger.error("", e);
+			} finally {
+				try {
+					request.getWriter().close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			logger.error("ressource inexistante : " + file.getPath());
+			try {
+				request.getWriter().writeBytes("ressource inexistante");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
+	
+	public void showDirectory(File file, Request request) throws IOException {
+		
+		// Header
+		request.getWriter().writeBytes("Content-Type: text/html\r\n\r\n");
+	
+		// Content
+		File[] files = file.listFiles();
+		String present = "<h1>Index of " + file.getName() + "</h1>";
+		request.getWriter().write(present.getBytes());
+
+		for(File f : files){
+			StringBuilder sb = new StringBuilder();
+			sb.append("<p><a href='");
+			sb.append(request.getPath());
+			sb.append((request.getPath().endsWith("/") ? "" : "/"));
+			sb.append(f.getName());
+			sb.append("'>");
+			sb.append(f.getName());
+			sb.append("</a></p>");
+
+			System.out.println(sb.toString());
+			request.getWriter().write(sb.toString().getBytes());
+		}
+	}
+
+	public void downloadFile(File file, Request request) throws IOException {
+		
+		// Header
+		request.getWriter().writeBytes("Content-Type: octet/stream\r\n\r\n");
+		
+		FileInputStream in = new FileInputStream(file);
+		byte[] buffer = new byte[4096];
+		int length;
+		while ((length = in.read(buffer)) > 0){
+			request.getWriter().write(buffer);
+		}
+		in.close();
+	}
+	
+	
 
 }

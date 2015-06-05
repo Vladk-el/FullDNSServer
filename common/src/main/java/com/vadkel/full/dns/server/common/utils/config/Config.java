@@ -29,12 +29,20 @@ public class Config {
 	
 	public static final String COOKIE = "Cookie: ";
 	
-
-	private static final String DOMAIN = "domain";
-
-	private static final String SESSION = "session";
+	public static final String PATH = "Path: ";
 	
-	private static final String WORKER = "worker";
+	public static final String HTTP = "HTTP/1.1";
+	
+	public static final String GET = "GET";
+	
+	public static final String POST = "POST";
+	
+
+	public static final String DOMAIN = "domain";
+
+	public static final String SESSION = "session";
+	
+	public static final String WORKER = "worker";
 	
 	public static enum Type {
 
@@ -73,6 +81,20 @@ public class Config {
 	public String get(String type, Integer id, String key) {
 		return properties.get(type).get(id).get(key);
 	}
+	
+	public Integer getNumberByTypeKeyValue(String type, String key, String value) {
+		
+		for(Integer index : properties.get(type).keySet()) {
+			//logger.info(properties.get(type).get(index).get(key) + " =? " + value);
+			if(properties.get(type).get(index).get(key).equalsIgnoreCase(value)) {
+				//logger.info("INDEX FOUNDED");
+				return index;
+			}
+		}
+		
+		return null;
+	}
+	
 
 	public void put(String type, String key, String value) {
 		put(type, 0, key, value);
@@ -104,7 +126,7 @@ public class Config {
 					sb.append(key);
 					sb.append("=");
 					sb.append(properties.get(type).get(id).get(key));
-//					logger.info(sb.toString());
+					logger.info(sb.toString());
 				}
 			}
 		}

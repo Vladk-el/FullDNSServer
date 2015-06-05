@@ -1,6 +1,7 @@
 package com.vadkel.full.dns.server.common.model;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,20 +24,23 @@ public class Request implements IRequest {
 	
 	private String userAgent;
 	
+	private String path;
+	
 	private List<String> datas;
 	
 	private Map<String, String> cookies;
+	
+	private DataOutputStream writer;
 	
 
 	public Request(Socket socket) {
 		setSocket(socket);
 		datas = new ArrayList<>();
 		cookies = new HashMap<>();
-		init();
 	}
 
 	@Override
-	public void init() {
+	public boolean init() {
 		byte[] messageByte = new byte[1000];
 		int bytesRead;
 		StringBuilder sb = new StringBuilder();
@@ -58,10 +62,12 @@ public class Request implements IRequest {
 			
 			parse(lines);
 			
+			setWriter(new DataOutputStream(socket.getOutputStream()));
+			
+			return true;
 		} catch (Exception e) {
 			logger.error("Error on init() Request", e);
-		} finally {
-
+			return false;
 		}
 	}
 	
@@ -73,12 +79,26 @@ public class Request implements IRequest {
 				//logger.info(s);
 
 				if(s.startsWith(Config.HOST)) {
-					setHost(s);
+					setHost(s.replace(Config.HOST, ""));
 				}
 				else if(s.startsWith(Config.USER_AGENT)) {
-					setUserAgent(s);
+					setUserAgent(s.replace(Config.USER_AGENT, ""));
 				}
-				else if(s.startsWith(Config.COOKIE)) {
+				else if(s.endsWith(Config.HTTP)) {
+					String [] header = s.split(" ");
+					if(header.length == 3) {
+						setPath(header[1]);
+					} else {
+						setPath(
+								s.replaceAll(Config.GET, "").
+								  replaceAll(Config.POST, "").
+								  replaceAll(Config.HTTP, "").
+								  trim()
+								);
+					}
+					
+				} // only take cookies like key=value
+				else if(s.startsWith(Config.COOKIE)) { 
 					String [] cookie = s.replace(Config.COOKIE, "").split("=");
 					if(cookie.length == 2){
 						getCookies().put(cookie[0], cookie[1]);
@@ -98,6 +118,9 @@ public class Request implements IRequest {
 		
 		sb.append("\t" + Config.USER_AGENT + "\n");
 			sb.append("\t\t" + getUserAgent() + "\n");
+			
+		sb.append("\t" + Config.PATH + "\n");
+			sb.append("\t\t" + getPath() + "\n");
 		
 		sb.append("\t" + Config.COOKIE + "\n");
 		for(String cookie : getCookies().keySet()) {
@@ -136,6 +159,14 @@ public class Request implements IRequest {
 		this.userAgent = userAgent;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
 	public static Logger getLogger() {
 		return logger;
 	}
@@ -154,6 +185,14 @@ public class Request implements IRequest {
 
 	public void setCookies(Map<String, String> cookies) {
 		this.cookies = cookies;
+	}
+
+	public DataOutputStream getWriter() {
+		return writer;
+	}
+
+	public void setWriter(DataOutputStream writer) {
+		this.writer = writer;
 	}
 
 }
