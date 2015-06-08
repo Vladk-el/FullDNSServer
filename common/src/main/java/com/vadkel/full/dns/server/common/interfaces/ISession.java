@@ -10,4 +10,8 @@ public interface ISession {
 	
 	public Map<String, Object> getAttributes();
 	
+	public Integer getTimeout();
+
+	public void setTimeout(Integer timeout);
+	
 }

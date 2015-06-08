@@ -6,7 +6,7 @@ import java.util.Map;
 import com.vadkel.full.dns.server.common.interfaces.ISession;
 
 public class Session implements ISession {
-		
+	
 	private Map<String, Object> attributes;
 	
 	private Integer timeout = 1800;
@@ -37,10 +37,12 @@ public class Session implements ISession {
 		return attributes;
 	}
 
+	@Override
 	public Integer getTimeout() {
 		return timeout;
 	}
 
+	@Override
 	public void setTimeout(Integer timeout) {
 		this.timeout = timeout;
 	}

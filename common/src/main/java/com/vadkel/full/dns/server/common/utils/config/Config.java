@@ -19,7 +19,9 @@ public class Config {
 	
 	public static final String SESSION_COOKIE_ID = "VladkelHttpStaticKey";
 	
-	public static final String SESSION_COOKIE_PROPERTY = "VLADKELHttpStaticKey";
+	public static final String SESSION_COOKIE_SET_PROPERTY = "VLADKELHttpStaticSetProperty: ";
+	
+	public static final String SESSION_COOKIE_GET_PROPERTY = "VLADKELHttpStaticGetProperty: ";
 	
 	public static final String DEFAULT_COOKIE_PATH = "FullDnsServer/com/vladkel/full/dns/server";
 	
