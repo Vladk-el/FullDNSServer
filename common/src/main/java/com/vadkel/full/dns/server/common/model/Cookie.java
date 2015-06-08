@@ -3,35 +3,24 @@ package com.vadkel.full.dns.server.common.model;
 import java.util.Map;
 
 import com.vadkel.full.dns.server.common.utils.config.Config;
-import com.vadkel.full.dns.server.common.utils.session.SessionUtils;
 
 public class Cookie {
 	
-	private String name;
-
 	private String path;
-	
-	private String domain;
-	
+		
 	private String expires;
 	
 	private Map<String, String> attributes;
 	
+	public Cookie(String expires, Map<String, String> attributes) {
+		setPath(Config.DEFAULT_COOKIE_PATH);
+		setExpires(expires);
+		setAttributes(attributes);
+	}
+	
+		
 	// TODO finir cookies
 	public Cookie(String cookie) {
-		/*
-		 * Config.SET_COOKIE + 
-									"nom=" + 
-									request.getSessionId() + 
-									" expires=" + 
-									SessionUtils.getDateForCookie(
-										Integer.parseInt(
-											server.getConf().get(Config.SESSION, Config.TIMEOUT)
-										)
-									) + 
-									" path=" + 
-									this.getClass().getCanonicalName()	
-		 */
 		
 		String [] tab = cookie.split(";"); 
 		
@@ -39,14 +28,10 @@ public class Cookie {
 			str = str.trim();
 			String [] elements = str.split("=");
 			if(elements.length == 2){
-				if(elements[0].equalsIgnoreCase("name")) {
-					setName(elements[1]);
-				} else if(elements[0].equalsIgnoreCase("path")) {
-					setName(elements[1]);
-				} else if(elements[0].equalsIgnoreCase("domain")) {
-					setName(elements[1]);
+				if(elements[0].equalsIgnoreCase("path")) {
+					setPath(elements[1]);
 				} else if(elements[0].equalsIgnoreCase("expires")) {
-					setName(elements[1]);
+					setExpires(elements[1]);
 				} else {
 					attributes.put(elements[0], elements[1]);
 				}
@@ -54,13 +39,41 @@ public class Cookie {
 			
 		}
 	}
-
-	public String getName() {
-		return name;
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		 
+		 if(getPath() != null) {
+			 sb.append("path=" + getPath());
+			 sb.append("; ");
+		 }
+		 
+		 if(getExpires() != null) {
+			 sb.append("expires=" + getExpires());
+			 sb.append("; ");
+		 }
+		 
+		 for(String attr : attributes.keySet()) {
+			 sb.append(attr + "=" + attributes.get(attr));
+			 sb.append("; ");
+		 }
+		
+		return sb.toString();
 	}
-
-	public void setName(String name) {
-		this.name = name;
+	
+	public String getReadyToUse(String expires) {
+		
+		String toReturn = Config.SET_COOKIE + toString();
+		
+		if(getPath() == Config.DEFAULT_COOKIE_PATH) {
+			if(getExpires() != null) {
+				return toReturn.replaceAll(getExpires(), expires);
+			} else {
+				return toReturn + "expires=" + expires + ";";
+			}
+		}
+		return toReturn;
 	}
 
 	public String getPath() {
@@ -69,14 +82,6 @@ public class Cookie {
 
 	public void setPath(String path) {
 		this.path = path;
-	}
-
-	public String getDomain() {
-		return domain;
-	}
-
-	public void setDomain(String domain) {
-		this.domain = domain;
 	}
 
 	public String getExpires() {
@@ -94,6 +99,5 @@ public class Cookie {
 	public void setAttributes(Map<String, String> attributes) {
 		this.attributes = attributes;
 	}
-	
 	
 }

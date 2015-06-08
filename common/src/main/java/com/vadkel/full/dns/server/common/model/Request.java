@@ -4,9 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,7 @@ public class Request implements IRequest {
 	
 	private List<String> datas;
 	
-	private Map<String, String> cookies;
+	private List<Cookie> cookies;
 	
 	private DataOutputStream writer;
 	
@@ -38,7 +36,7 @@ public class Request implements IRequest {
 	public Request(Socket socket) {
 		setSocket(socket);
 		datas = new ArrayList<>();
-		cookies = new HashMap<>();
+		cookies = new ArrayList<>();
 	}
 
 	@Override
@@ -100,12 +98,12 @@ public class Request implements IRequest {
 					}
 					
 				} // only take cookies like key=value
+				//TODO
 				else if(s.startsWith(Config.COOKIE)) { 
-					String [] cookie = s.replace(Config.COOKIE, "").split("=");
-					if(cookie.length == 2){
-						getCookies().put(cookie[0], cookie[1]);
-					}
+					Cookie cookie = new Cookie(s);
+					getCookies().add(cookie);
 				}
+				
 			}
 			getDatas().add(s);
 		}
@@ -128,8 +126,8 @@ public class Request implements IRequest {
 			sb.append("\t\t" + getPath() + "\n");
 		
 		sb.append("\t" + Config.COOKIE + "\n");
-		for(String cookie : getCookies().keySet()) {
-			sb.append("\t\t" + cookie + " : " + getCookies().get(cookie) + "\n");
+		for(Cookie cookie : getCookies()) {
+			sb.append("\t\t" + cookie + " : " + cookie + "\n");
 		}
 		
 		sb.append("\tAll request :" + "\n");
@@ -192,11 +190,11 @@ public class Request implements IRequest {
 		this.datas = datas;
 	}
 
-	public Map<String, String> getCookies() {
+	public List<Cookie> getCookies() {
 		return cookies;
 	}
 
-	public void setCookies(Map<String, String> cookies) {
+	public void setCookies(List<Cookie> cookies) {
 		this.cookies = cookies;
 	}
 

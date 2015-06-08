@@ -18,6 +18,10 @@ public class SessionUtils {
 		return workerName + (new Timestamp(new Date().getTime())).getTime() + "." + random.nextInt(RANGE);
 	}
 	
+	public static String getDateForCookie(String delay) {
+		return getDateForCookie(Integer.parseInt(delay));
+	}
+	
 	public static String getDateForCookie(Integer delay) {
 		
 		DateFormat df = new SimpleDateFormat("dd MMM yyyy kk:mm:ss z");

@@ -17,7 +17,11 @@ public class Config {
 
 	public static final String DEFAULT_CONFIG_PATH = "conf/config.ini";
 	
-	public static final String SESSION_ID_COOKIE_NAME = "VLADKELHttpStatic";
+	public static final String SESSION_COOKIE_ID = "VladkelHttpStaticKey";
+	
+	public static final String SESSION_COOKIE_PROPERTY = "VLADKELHttpStaticKey";
+	
+	public static final String DEFAULT_COOKIE_PATH = "FullDnsServer/com/vladkel/full/dns/server";
 	
 	public static final String TIMEOUT = "timeout";
 	

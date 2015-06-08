@@ -70,10 +70,7 @@ public class HttpServer implements IServer {
 					handle(client);
 				} catch (Exception e) {
 					e.printStackTrace();
-				} /*finally {
-					logger.info("client " + client + " disconnected\n");
-					client.close();
-				}*/
+				}
 			}
 
 		} catch (Exception e) {
@@ -94,11 +91,7 @@ public class HttpServer implements IServer {
 	public void handle(Socket client) {
 		
 		pool.addJob(new HttpStaticTask(this, client));
-		
-		/*Request request = new Request(client);
-		request.show();
-		manageSession(request);
-		execute(request);*/
+
 	}
 
 	@Override
