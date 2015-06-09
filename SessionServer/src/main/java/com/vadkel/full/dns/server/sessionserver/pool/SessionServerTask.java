@@ -1,7 +1,5 @@
 package com.vadkel.full.dns.server.sessionserver.pool;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -10,12 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import com.vadkel.full.dns.server.common.interfaces.ISession;
 import com.vadkel.full.dns.server.common.interfaces.IWorkerTask;
-import com.vadkel.full.dns.server.common.model.Cookie;
 import com.vadkel.full.dns.server.common.model.Request;
 import com.vadkel.full.dns.server.common.model.Session;
-import com.vadkel.full.dns.server.common.model.SessionRequest;
 import com.vadkel.full.dns.server.common.utils.config.Config;
-import com.vadkel.full.dns.server.common.utils.session.SessionUtils;
 import com.vadkel.full.dns.server.sessionserver.server.SessionServer;
 
 public class SessionServerTask implements IWorkerTask {
@@ -41,7 +36,7 @@ public class SessionServerTask implements IWorkerTask {
 
 	@Override
 	public void handle() {
-		SessionRequest request = new SessionRequest(socket);
+		Request request = new Request(socket);
 		if(request.init()) {
 			request.show();
 			manageSession(request);
@@ -82,7 +77,7 @@ public class SessionServerTask implements IWorkerTask {
 			}
 			
 			else if(str.contains(Config.SESSION_COOKIE_GET_PROPERTY)) {
-				((SessionRequest)request).getWantedProperties().add(str.replaceAll(Config.SESSION_COOKIE_GET_PROPERTY, ""));
+				request.getWantedProperties().add(str.replaceAll(Config.SESSION_COOKIE_GET_PROPERTY, ""));
 			}
 		}
 		
@@ -96,7 +91,7 @@ public class SessionServerTask implements IWorkerTask {
 			
 			request.getWriter().writeBytes(Config.SESSION_COOKIE_ID + "=" + request.getSessionId() + "\r\n");
 			
-			for(String key : ((SessionRequest)request).getWantedProperties()) {
+			for(String key : request.getWantedProperties()) {
 				request.getWriter().writeBytes(Config.SESSION_COOKIE_GET_PROPERTY + 
 											   key + "=" + 
 											   server.getSessions().get(request.getSessionId()).getAttribute(key) + 

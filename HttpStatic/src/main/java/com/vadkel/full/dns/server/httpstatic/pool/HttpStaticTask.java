@@ -53,9 +53,22 @@ public class HttpStaticTask implements IWorkerTask {
 		
 	}
 
+	// TODO
 	public void manageSession(Request request) {
-		// TODO Auto-generated method stub
-
+		
+		if(request.getSessionId() == null) {
+			request.setSessionId(SessionUtils.generateSessionKey(server.getConf().get(Config.WORKER, Config.NAME)));
+		}
+		
+		/**
+		 * check local / remote
+		 * if local
+		 * 	use sessions
+		 * else remote
+		 * 	new connexion to SessionServer
+		 * 	write request.wantedProperties
+		 * 
+		 */
 	}
 
 	public void execute(Request request) {

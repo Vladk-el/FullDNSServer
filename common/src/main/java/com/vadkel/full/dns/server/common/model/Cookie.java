@@ -19,7 +19,6 @@ public class Cookie {
 	}
 	
 		
-	// TODO finir cookies
 	public Cookie(String cookie) {
 		
 		String [] tab = cookie.split(";"); 
@@ -90,6 +89,10 @@ public class Cookie {
 
 	public void setExpires(String expires) {
 		this.expires = expires;
+	}
+	
+	public String getAttribute(String key) {
+		return attributes.get(key);
 	}
 
 	public Map<String, String> getAttributes() {

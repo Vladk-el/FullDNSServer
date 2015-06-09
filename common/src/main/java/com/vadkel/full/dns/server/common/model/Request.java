@@ -32,11 +32,17 @@ public class Request implements IRequest {
 	
 	private DataOutputStream writer;
 	
+	private List<String> wantedProperties;
+	
+	private List<String> propertiesToSet;
+	
 
 	public Request(Socket socket) {
 		setSocket(socket);
 		datas = new ArrayList<>();
 		cookies = new ArrayList<>();
+		wantedProperties = new ArrayList<>();
+		propertiesToSet = new ArrayList<>();
 	}
 
 	@Override
@@ -97,10 +103,14 @@ public class Request implements IRequest {
 								);
 					}
 					
-				} // only take cookies like key=value
-				//TODO
+				}
 				else if(s.startsWith(Config.COOKIE)) { 
 					Cookie cookie = new Cookie(s);
+					if(cookie.getPath() != null && cookie.getPath().equalsIgnoreCase(Config.DEFAULT_COOKIE_PATH)) {
+						if(cookie.getAttribute(Config.SESSION_COOKIE_ID) != null) {
+							this.sessionId = cookie.getAttribute(Config.SESSION_COOKIE_ID);
+						}
+					}
 					getCookies().add(cookie);
 				}
 				
@@ -204,6 +214,22 @@ public class Request implements IRequest {
 
 	public void setWriter(DataOutputStream writer) {
 		this.writer = writer;
+	}
+	
+	public List<String> getWantedProperties() {
+		return wantedProperties;
+	}
+
+	public void setWantedProperties(List<String> wantedProperties) {
+		this.wantedProperties = wantedProperties;
+	}
+
+	public List<String> getPropertiesToSet() {
+		return propertiesToSet;
+	}
+
+	public void setPropertiesToSet(List<String> propertiesToSet) {
+		this.propertiesToSet = propertiesToSet;
 	}
 
 }
