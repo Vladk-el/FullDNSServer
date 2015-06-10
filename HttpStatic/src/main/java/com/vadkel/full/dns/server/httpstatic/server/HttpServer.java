@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vadkel.full.dns.server.common.interfaces.IServer;
+import com.vadkel.full.dns.server.common.interfaces.ISession;
 import com.vadkel.full.dns.server.common.model.Request;
 import com.vadkel.full.dns.server.common.utils.config.Config;
 import com.vadkel.full.dns.server.common.utils.config.ConfigReader;
@@ -28,6 +31,8 @@ public class HttpServer implements IServer {
 	private Config conf;
 	
 	private IPool pool;
+	
+	private Map<String, ISession> sessions;
 
 	public HttpServer() {
 		if(init()){
@@ -39,6 +44,7 @@ public class HttpServer implements IServer {
 	public boolean init() {
 		setConf(null);
 		pool = new Pool();
+		sessions = new HashMap<>();
 		
 		try {
 			ConfigReader cr = new ConfigReader(new File("./").getAbsolutePath());
@@ -112,6 +118,14 @@ public class HttpServer implements IServer {
 
 	public void setConf(Config conf) {
 		this.conf = conf;
+	}
+
+	public Map<String, ISession> getSessions() {
+		return sessions;
+	}
+
+	public void setSessions(Map<String, ISession> sessions) {
+		this.sessions = sessions;
 	}
 
 }

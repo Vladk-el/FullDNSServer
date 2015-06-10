@@ -11,6 +11,7 @@ import com.vadkel.full.dns.server.common.interfaces.IWorkerTask;
 import com.vadkel.full.dns.server.common.model.Request;
 import com.vadkel.full.dns.server.common.model.Session;
 import com.vadkel.full.dns.server.common.utils.config.Config;
+import com.vadkel.full.dns.server.common.utils.socket.SocketUtils;
 import com.vadkel.full.dns.server.sessionserver.server.SessionServer;
 
 public class SessionServerTask implements IWorkerTask {
@@ -57,14 +58,12 @@ public class SessionServerTask implements IWorkerTask {
 		
 		for(String str : request.getDatas()) {
 			if(str.contains(Config.SESSION_COOKIE_ID)) {
-				String key = str.replaceAll(Config.SESSION_COOKIE_ID, "");
+				String key = str.replaceAll(Config.SESSION_COOKIE_ID + "=", "");
 				request.setSessionId(key);
-				if(server.getSessions().get(key) != null) {
-					session = server.getSessions().get(key);
-				} else {
+				if(server.getSessions().get(key) == null) {
 					server.getSessions().put(key, new Session());
-					session = server.getSessions().get(key);
 				}
+				session = server.getSessions().get(key);
 			}
 			
 			else if(str.contains(Config.SESSION_COOKIE_SET_PROPERTY)) {
@@ -73,40 +72,44 @@ public class SessionServerTask implements IWorkerTask {
 									"").split("=");
 				if(tab.length == 2) {
 					session.setAttribute(tab[0], tab[1]);
+					logger.info("Setted property : " + tab[0] + "=" + tab[1]);
 				}
 			}
 			
 			else if(str.contains(Config.SESSION_COOKIE_GET_PROPERTY)) {
-				request.getWantedProperties().add(str.replaceAll(Config.SESSION_COOKIE_GET_PROPERTY, ""));
+				request.getWantedProperties().put(str.replaceAll(Config.SESSION_COOKIE_GET_PROPERTY, ""), null);
 			}
-		}
-		
-		execute(request);
+		}		
 	}
 
 	@Override
 	public void execute(Request request) {
 
+		logger.info(server.getSessions().get(request.getSessionId()).toString());
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(Config.SESSION_COOKIE_ID + "=" + request.getSessionId() + "\r\n");
+		
+		for(String key : request.getWantedProperties().keySet()) {
+			if(session.getAttribute(key) != null) {
+				sb.append(Config.SESSION_COOKIE_GET_PROPERTY + key + "=" + 
+						   session.getAttribute(key) + "\r\n");
+			}
+		}
+		
+		System.out.println("Response : " + sb.toString());
+		
+		/**
+		 * Write response
+		 */
+		
 		try {
 			
-			request.getWriter().writeBytes(Config.SESSION_COOKIE_ID + "=" + request.getSessionId() + "\r\n");
-			
-			for(String key : request.getWantedProperties()) {
-				request.getWriter().writeBytes(Config.SESSION_COOKIE_GET_PROPERTY + 
-											   key + "=" + 
-											   server.getSessions().get(request.getSessionId()).getAttribute(key) + 
-											   "\r\n");
-			}
-			
-			request.getWriter().flush();
+			SocketUtils.writeDatasIntoRequest(request, sb.toString());
+
 		} catch(Exception e) {
 			logger.error("", e);
-		} finally {
-			try {
-				request.getWriter().close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

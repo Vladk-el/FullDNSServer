@@ -4,13 +4,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vadkel.full.dns.server.common.interfaces.IRequest;
 import com.vadkel.full.dns.server.common.utils.config.Config;
+import com.vadkel.full.dns.server.common.utils.socket.SocketUtils;
 
 public class Request implements IRequest {
 
@@ -32,39 +35,25 @@ public class Request implements IRequest {
 	
 	private DataOutputStream writer;
 	
-	private List<String> wantedProperties;
+	private Map<String, String> wantedProperties;
 	
-	private List<String> propertiesToSet;
+	private Map<String, String> propertiesToSet;
 	
 
 	public Request(Socket socket) {
 		setSocket(socket);
 		datas = new ArrayList<>();
 		cookies = new ArrayList<>();
-		wantedProperties = new ArrayList<>();
-		propertiesToSet = new ArrayList<>();
+		wantedProperties = new HashMap<>();
+		propertiesToSet = new HashMap<>();
 	}
 
 	@Override
 	public boolean init() {
-		byte[] messageByte = new byte[1000];
-		int bytesRead;
-		StringBuilder sb = new StringBuilder();
-		String stringRead;
 
 		try {
-			DataInputStream in = new DataInputStream(socket.getInputStream());
-
-			while (true) {
-				bytesRead = in.read(messageByte);
-				stringRead = new String(messageByte, 0, bytesRead);
-				sb.append(stringRead);
-				if (stringRead.length() != 100) {
-					break;
-				}
-			}
 			
-			String [] lines = sb.toString().split("\r\n");
+			String [] lines = SocketUtils.getDatasToStringTab(socket);
 			
 			parse(lines);
 			
@@ -106,10 +95,8 @@ public class Request implements IRequest {
 				}
 				else if(s.startsWith(Config.COOKIE)) { 
 					Cookie cookie = new Cookie(s);
-					if(cookie.getPath() != null && cookie.getPath().equalsIgnoreCase(Config.DEFAULT_COOKIE_PATH)) {
-						if(cookie.getAttribute(Config.SESSION_COOKIE_ID) != null) {
-							this.sessionId = cookie.getAttribute(Config.SESSION_COOKIE_ID);
-						}
+					if(cookie.getAttribute(Config.SESSION_COOKIE_ID) != null) {
+						this.sessionId = cookie.getAttribute(Config.SESSION_COOKIE_ID);
 					}
 					getCookies().add(cookie);
 				}
@@ -137,7 +124,17 @@ public class Request implements IRequest {
 		
 		sb.append("\t" + Config.COOKIE + "\n");
 		for(Cookie cookie : getCookies()) {
-			sb.append("\t\t" + cookie + " : " + cookie + "\n");
+			sb.append("\t\t" + cookie + "\n");
+		}
+		
+		sb.append("\t" + "wantedProperties" + "\n");
+		for(String wp : getWantedProperties().keySet()) {
+			sb.append("\t\t" + wp + " : " + getWantedProperties().get(wp) + "\n");
+		}
+		
+		sb.append("\t" + "propertiesToSet" + "\n");
+		for(String wp : getPropertiesToSet().keySet()) {
+			sb.append("\t\t" + wp + " : " + getWantedProperties().get(wp) + "\n");
 		}
 		
 		sb.append("\tAll request :" + "\n");
@@ -215,21 +212,22 @@ public class Request implements IRequest {
 	public void setWriter(DataOutputStream writer) {
 		this.writer = writer;
 	}
-	
-	public List<String> getWantedProperties() {
+
+	public Map<String, String> getWantedProperties() {
 		return wantedProperties;
 	}
 
-	public void setWantedProperties(List<String> wantedProperties) {
+	public void setWantedProperties(Map<String, String> wantedProperties) {
 		this.wantedProperties = wantedProperties;
 	}
 
-	public List<String> getPropertiesToSet() {
+	public Map<String, String> getPropertiesToSet() {
 		return propertiesToSet;
 	}
 
-	public void setPropertiesToSet(List<String> propertiesToSet) {
+	public void setPropertiesToSet(Map<String, String> propertiesToSet) {
 		this.propertiesToSet = propertiesToSet;
 	}
+	
 
 }

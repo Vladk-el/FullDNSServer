@@ -4,11 +4,11 @@ import java.util.Map;
 
 public interface ISession {
 
-	public void setAttribute(String key, Object value);
+	public void setAttribute(String key, String value);
 	
-	public Object getAttribute(String key);
+	public String getAttribute(String key);
 	
-	public Map<String, Object> getAttributes();
+	public Map<String, String> getAttributes();
 	
 	public Integer getTimeout();
 

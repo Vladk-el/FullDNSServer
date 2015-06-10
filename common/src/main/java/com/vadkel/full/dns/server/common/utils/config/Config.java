@@ -29,6 +29,8 @@ public class Config {
 	
 	public static final String PORT = "port";
 	
+	public static final String IP = "ip";
+	
 	public static final String NAME = "name";
 	
 	public static final String DOCUMENT_ROOT = "document_root";
@@ -53,6 +55,12 @@ public class Config {
 	public static final String DOMAIN = "domain";
 
 	public static final String SESSION = "session";
+	
+		public static final String MODE = "mode";
+		
+		public static final String REMOTE = "remote";
+		
+		public static final String LOCAL = "local";
 	
 	public static final String WORKER = "worker";
 	
@@ -97,9 +105,7 @@ public class Config {
 	public Integer getNumberByTypeKeyValue(String type, String key, String value) {
 		
 		for(Integer index : properties.get(type).keySet()) {
-			//logger.info(properties.get(type).get(index).get(key) + " =? " + value);
 			if(properties.get(type).get(index).get(key).equalsIgnoreCase(value)) {
-				//logger.info("INDEX FOUNDED");
 				return index;
 			}
 		}
