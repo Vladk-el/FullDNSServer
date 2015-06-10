@@ -1,6 +1,5 @@
 package com.vadkel.full.dns.server.common.model;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;

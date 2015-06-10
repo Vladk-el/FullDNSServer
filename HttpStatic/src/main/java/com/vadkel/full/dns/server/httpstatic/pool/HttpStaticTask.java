@@ -1,13 +1,8 @@
 package com.vadkel.full.dns.server.httpstatic.pool;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,18 +54,7 @@ public class HttpStaticTask implements IWorkerTask {
 		
 	}
 
-	// TODO
 	public void manageSession(Request request) {
-		
-		/**
-		 * check local / remote
-		 * if local
-		 * 	use sessions
-		 * else remote
-		 * 	new connexion to SessionServer
-		 * 	write request.wantedProperties
-		 * 
-		 */
 		
 		boolean needSessionCookie = (request.getSessionId() == null) ? true : false;
 				
@@ -79,6 +63,10 @@ public class HttpStaticTask implements IWorkerTask {
 		}
 		
 		ISession session = null;
+		
+		/**
+		 * local case
+		 */
 		
 		switch (server.getConf().get(Config.SESSION, Config.MODE)) {
 		
@@ -99,6 +87,11 @@ public class HttpStaticTask implements IWorkerTask {
 				
 				break;
 				
+			
+				/**
+				 * remote case
+				 */
+				
 			case Config.REMOTE:
 				
 				Socket sessionSocket = null;
@@ -108,7 +101,6 @@ public class HttpStaticTask implements IWorkerTask {
 				/**
 				 * Jeu de test
 				 */
-				
 				
 				request.getPropertiesToSet().put("TEST", "HAHAHAHA");
 				request.getPropertiesToSet().put("TEST2", "HAHAHAHAHA2");
@@ -218,9 +210,11 @@ public class HttpStaticTask implements IWorkerTask {
 				);
 				
 		if(file.exists()) {
+			
+			StringBuilder sb = new StringBuilder();
 			try {
 				// Header 
-				request.getWriter().writeBytes("HTTP/1.1 200 OK\r\n");
+				sb.append("HTTP/1.1 200 OK\r\n");
 								
 				// add cookies
 				for(Cookie cookie : request.getCookies()) {
@@ -234,11 +228,12 @@ public class HttpStaticTask implements IWorkerTask {
 				}
 				
 				if(file.isDirectory()) {
-					showDirectory(file, request);
+					showDirectory(file, request, sb);
+					SocketUtils.writeDatasIntoRequest(request, sb.toString());
 				} else if(file.isFile()) {
-					downloadFile(file, request);
+					downloadFile(file, request, sb);
 				}
-				request.getWriter().flush();
+								
 			} catch(Exception e) {
 				logger.error("", e);
 			} finally {
@@ -258,18 +253,17 @@ public class HttpStaticTask implements IWorkerTask {
 		}
 	}
 	
-	public void showDirectory(File file, Request request) throws IOException {
+	public void showDirectory(File file, Request request, StringBuilder sb) throws IOException {
 		
 		// Header
-		request.getWriter().writeBytes("Content-Type: text/html\r\n\r\n");
+		sb.append("Content-Type: text/html\r\n\r\n");
 	
 		// Content
 		File[] files = file.listFiles();
 		String present = "<h1>Index of " + file.getName() + "</h1>";
-		request.getWriter().write(present.getBytes());
+		sb.append(present);
 
 		for(File f : files){
-			StringBuilder sb = new StringBuilder();
 			sb.append("<p><a href='");
 			sb.append(request.getPath());
 			sb.append((request.getPath().endsWith("/") ? "" : "/"));
@@ -277,23 +271,16 @@ public class HttpStaticTask implements IWorkerTask {
 			sb.append("'>");
 			sb.append(f.getName());
 			sb.append("</a></p>");
-
-			request.getWriter().write(sb.toString().getBytes());
 		}
 	}
 
-	public void downloadFile(File file, Request request) throws IOException {
+	public void downloadFile(File file, Request request, StringBuilder sb) throws IOException {
 		
 		// Header
-		request.getWriter().writeBytes("Content-Type: octet/stream\r\n\r\n");
+		sb.append("Content-Type: octet/stream\r\n\r\n");
 		
-		FileInputStream in = new FileInputStream(file);
-		byte[] buffer = new byte[4096];
-
-		while (in.read(buffer) > 0) {
-			request.getWriter().write(buffer);
-		}
-		in.close();
+		SocketUtils.writeBytesIntoRequest(request, sb.toString(), file);
+		
 	}
 	
 	

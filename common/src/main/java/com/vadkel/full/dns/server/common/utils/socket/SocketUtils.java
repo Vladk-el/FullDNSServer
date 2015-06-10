@@ -2,6 +2,8 @@ package com.vadkel.full.dns.server.common.utils.socket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -42,6 +44,20 @@ public class SocketUtils {
 	
 	public static void writeDatasIntoRequest(Request request, String datas) throws IOException {
 		request.getWriter().writeBytes(datas);
+		request.getWriter().flush();
+	}
+	
+	public static void writeBytesIntoRequest(Request request, String headers, File file ) throws IOException {
+		request.getWriter().writeBytes(headers);
+		
+		FileInputStream in = new FileInputStream(file);
+		byte[] buffer = new byte[4096];
+
+		while (in.read(buffer) > 0) {
+			request.getWriter().write(buffer);
+		}
+		in.close();
+		
 		request.getWriter().flush();
 	}
 }

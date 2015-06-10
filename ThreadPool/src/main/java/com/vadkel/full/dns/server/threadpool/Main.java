@@ -57,7 +57,8 @@ public class Main {
 		pool.getStack().print();
 	}
     
-    public static void addDynamicRunnable(Pool pool){
+    @SuppressWarnings("resource")
+	public static void addDynamicRunnable(Pool pool){
 		Scanner sc = new Scanner(System.in);
 		
 		while(true){
