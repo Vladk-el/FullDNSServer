@@ -57,6 +57,21 @@ public class ProxyServerTask implements IWorkerTask {
 	public void execute(Request request) {
 		// TODO Auto-generated method stub
 		
+		/**
+		 * find the host by the request (my.webstite ....
+		 * ==> find the good load balancer
+		 * 
+		 * look for load balancer strategy
+		 * 	if round_robin
+		 * 		get the next server and balance to this one
+		 * 	if sticky_session
+		 * 		check if session exists
+		 * 			yes : balance to the good server
+		 * 			no : balance like round_robin and save session_key
+		 * 
+		 * then write and read to the good worker
+		 * 
+		 */
 	}
 
 	public ProxyServer getServer() {
