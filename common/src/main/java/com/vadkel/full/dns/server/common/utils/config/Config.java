@@ -64,6 +64,8 @@ public class Config {
 	
 	public static final String WORKER = "worker";
 	
+	public static final String PROXY = "proxy";
+	
 	public static enum Type {
 
 		domain {
@@ -79,6 +81,11 @@ public class Config {
 		worker {
 			public String toString() {
 				return WORKER;
+			}
+		},
+		proxy {
+			public String toString() {
+				return PROXY;
 			}
 		}
 
