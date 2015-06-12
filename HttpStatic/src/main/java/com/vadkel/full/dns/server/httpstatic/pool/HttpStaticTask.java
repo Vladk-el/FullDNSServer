@@ -219,17 +219,15 @@ public class HttpStaticTask implements IWorkerTask {
 				// add cookies
 				for(Cookie cookie : request.getCookies()) {
 					if(cookie.isNeedToBeSent()) {
-						request.getWriter().writeBytes(
-								cookie.getReadyToUse(SessionUtils.getDateForCookie(
+						sb.append(cookie.getReadyToUse(SessionUtils.getDateForCookie(
 									server.getConf().get(Config.SESSION, Config.TIMEOUT))
-								)
-							);
+								));
+						sb.append("\r\n");
 					}
 				}
 				
 				if(file.isDirectory()) {
 					showDirectory(file, request, sb);
-					SocketUtils.writeDatasIntoRequest(request, sb.toString());
 				} else if(file.isFile()) {
 					downloadFile(file, request, sb);
 				}
@@ -272,6 +270,8 @@ public class HttpStaticTask implements IWorkerTask {
 			sb.append(f.getName());
 			sb.append("</a></p>");
 		}
+		
+		SocketUtils.writeDatasIntoRequest(request, sb.toString());
 	}
 
 	public void downloadFile(File file, Request request, StringBuilder sb) throws IOException {
