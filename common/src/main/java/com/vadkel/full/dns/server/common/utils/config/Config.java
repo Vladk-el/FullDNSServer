@@ -39,6 +39,8 @@ public class Config {
 	
 	public static final String HOST = "Host: ";
 	
+	public static final String CONTENT_TYPE = "Content-Type: ";
+	
 	public static final String COOKIE = "Cookie: ";
 	
 	public static final String SET_COOKIE = "Set-Cookie: ";
@@ -62,9 +64,22 @@ public class Config {
 		
 		public static final String LOCAL = "local";
 	
-	public static final String WORKER = "worker";
-	
 	public static final String PROXY = "proxy";
+	
+		public static final String LOAD_BALANCER = "lb";
+		
+		public static final String STRATEGY = "strategy";
+		
+		public static final String BAN_ON_FAIL = "ban_on_fail";
+		
+		public static final String STRATEGY_RR = "round_robin";
+		
+		public static final String STRATEGY_SS = "stiky_session";
+		
+		public static final String WORKERS = "workers";
+				
+	public static final String WORKER = "worker";
+		
 	
 	public static enum Type {
 
@@ -87,11 +102,29 @@ public class Config {
 			public String toString() {
 				return PROXY;
 			}
+		},
+		load_balancer {
+			public String toString() {
+				return LOAD_BALANCER;
+			}
 		}
-
+	}
+	
+	public static enum Strategies {
+		round_robin {
+			public String toString() {
+				return STRATEGY_RR;
+			}
+		},
+		sticky_session {
+			public String toString() {
+				return STRATEGY_SS;
+			}
+		}
 	}
 
 	private Map<String, Map<Integer, Map<String, String>>> properties;
+	
 	
 	public Config() {
 		properties = new HashMap<>();
@@ -118,6 +151,25 @@ public class Config {
 		}
 		
 		return null;
+	}
+	
+	public Integer getNumberByTypeKeyAndLikeValue(String type, String key, String value) {
+		
+		for(Integer index : properties.get(type).keySet()) {
+			if(properties.get(type).get(index).get(key).contains(value)) {
+				return index;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Map<String, String> getAsMap(String type, String id) {
+		return getAsMap(type, id);
+	}
+	
+	public Map<String, String> getAsMap(String type, Integer id) {
+		return properties.get(type).get(id);
 	}
 	
 

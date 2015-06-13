@@ -23,12 +23,17 @@ public class SocketUtils {
 			Thread.sleep(1);
 		}
 
+		int cpt = 0;
+		
 		while ((bytesRead = in.read(messageByte)) > 0) {
 			System.out.println(bytesRead);
 			stringRead = new String(messageByte, 0, bytesRead);
 			sb.append(stringRead);
-			if(in.available() == 0)
-				break;
+			if(in.available() == 0) {
+				if(sb.toString().endsWith("\r\n\r\n")) {
+					break;
+				}
+			}
 		}
 				
 		String [] lines = sb.toString().split("\r\n");
