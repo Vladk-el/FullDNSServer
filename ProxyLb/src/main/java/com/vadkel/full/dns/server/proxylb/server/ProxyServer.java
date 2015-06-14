@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,8 @@ public class ProxyServer implements IServer {
 	private Config conf;
 	
 	private IPool pool;
+	
+	private Integer lastRRServer;
 	
 	public ProxyServer() {
 		if(init()) {
@@ -116,5 +117,13 @@ public class ProxyServer implements IServer {
 
 	public void setPool(IPool pool) {
 		this.pool = pool;
+	}
+
+	public Integer getLastRRServer() {
+		return lastRRServer;
+	}
+
+	public void setLastRRServer(Integer lastRRServer) {
+		this.lastRRServer = lastRRServer;
 	}
 }
