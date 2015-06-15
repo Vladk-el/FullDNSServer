@@ -123,6 +123,22 @@ public class ProxyServerTask implements IWorkerTask {
 				
 			case Config.STRATEGY_SS:
 				logger.error("NOT IMPLEMENTED YET");
+				
+				/**
+				 * if sticky_session
+					read data
+					check if SS_KEY
+						yes : 
+							get the good server by a map of SS or map of map<Strint, String>
+						no : 
+							create a SS_KEY
+							round_robin to find the good server
+							create and put a SS in the SS map
+							rajouter un cookie dans la réponse
+
+				 */
+				
+				
 				break;
 	
 			default:
