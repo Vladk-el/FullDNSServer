@@ -128,9 +128,7 @@ public class ProxyServerTask implements IWorkerTask {
 			default:
 				break;
 		}
-		
-		//strategy = server.getConf().get(Config.PROXY, key)
-		
+				
 	}
 
 	/**
