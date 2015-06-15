@@ -13,7 +13,6 @@ public class Main {
 		
 		new ProxyServer();
 		
-		// tests
 	}
 
 }
