@@ -26,6 +26,8 @@ public class ProxyServer implements IServer {
 	
 	private Integer lastRRServer;
 	
+	private Integer lastSSServer;
+	
 	public ProxyServer() {
 		if(init()) {
 			run();
@@ -125,5 +127,13 @@ public class ProxyServer implements IServer {
 
 	public void setLastRRServer(Integer lastRRServer) {
 		this.lastRRServer = lastRRServer;
+	}
+
+	public Integer getLastSSServer() {
+		return lastSSServer;
+	}
+
+	public void setLastSSServer(Integer lastSSServer) {
+		this.lastSSServer = lastSSServer;
 	}
 }

@@ -222,7 +222,6 @@ public class HttpStaticTask implements IWorkerTask {
 						sb.append(cookie.getReadyToUse(SessionUtils.getDateForCookie(
 									server.getConf().get(Config.SESSION, Config.TIMEOUT))
 								));
-						sb.append("\r\n");
 					}
 				}
 				

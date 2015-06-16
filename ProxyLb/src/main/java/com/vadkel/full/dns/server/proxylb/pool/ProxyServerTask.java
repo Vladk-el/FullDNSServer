@@ -12,8 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vadkel.full.dns.server.common.interfaces.IWorkerTask;
+import com.vadkel.full.dns.server.common.model.Cookie;
 import com.vadkel.full.dns.server.common.model.Request;
+import com.vadkel.full.dns.server.common.model.StickySession;
 import com.vadkel.full.dns.server.common.utils.config.Config;
+import com.vadkel.full.dns.server.common.utils.session.SessionUtils;
 import com.vadkel.full.dns.server.common.utils.socket.SocketUtils;
 import com.vadkel.full.dns.server.proxylb.server.ProxyServer;
 
@@ -29,12 +32,22 @@ public class ProxyServerTask implements IWorkerTask {
 	
 	private Integer workerToBalance;
 	
+	private StickySession stickySession;
+	
+	private Map<String, StickySession> stickySessions;
+	
+	private Cookie stickySessionCookie;
+	
 	
 	public ProxyServerTask(ProxyServer server, Socket socket) {
 		super();
 		this.server = server;
 		this.socket = socket;
 		loadBalancer = new HashMap<>();
+		workerToBalance = null;
+		stickySession = null;
+		stickySessions = new HashMap<>();
+		stickySessionCookie = null;
 	}
 	
 	@Override
@@ -60,7 +73,9 @@ public class ProxyServerTask implements IWorkerTask {
 		}
 	}
 
-	// TODO DOING
+	/**
+	 * Manage the sticky session and determine the good server to execute on
+	 */
 	@Override
 	public void manageSession(Request request) {
 		/**
@@ -75,7 +90,6 @@ public class ProxyServerTask implements IWorkerTask {
 		 * 			yes : balance to the good server
 		 * 			no : balance like round_robin and save session_key
 		 * 
-		 *  set currentLb && strategy
 		 */
 		
 		/**
@@ -92,63 +106,71 @@ public class ProxyServerTask implements IWorkerTask {
 		setLoadBalancer(server.getConf().getAsMap(Config.LOAD_BALANCER, currentLb));
 		
 		List<Integer> workers = new ArrayList<Integer>();
+		Integer lastServer = null;
 		
 		for(String worker : getLoadBalancer().get(Config.WORKERS).split(",")) {
 			workers.add(Integer.parseInt(worker));
 		}
 		
 		switch (getLoadBalancer().get(Config.STRATEGY)) {
+			/**
+			 * Round robin case
+			 */
 			case Config.STRATEGY_RR:
-				if(workers.size() > 0) {
-					Integer lastServer = server.getLastRRServer();
-					if(lastServer != null) {
-						lastServer = workers.get(0);
-					}
-					
-					Iterator<Integer> it = workers.iterator();
-					Integer cw = null;
-					while(it.hasNext()) {
-						cw = it.next();
-						if(cw == lastServer) {
-							break;
-						}
-					}
-					setWorkerToBalance(it.hasNext() ? it.next() : workers.get(0));
-					logger.info("worker to balance on : " + getWorkerToBalance());
-				}
-				else {
-					logger.error("NO worker available !!!");
-				}
+				
+				lastServer = server.getLastRRServer();
+				
+				setWorkerToBalance(getRoundRobinServer(workers, lastServer));
+				
+				server.setLastRRServer(workerToBalance);
+				
 				break;
-				
-			case Config.STRATEGY_SS:
-				logger.error("NOT IMPLEMENTED YET");
-				
-				/**
-				 * if sticky_session
-					read data
-					check if SS_KEY
-						yes : 
-							get the good server by a map of SS or map of map<Strint, String>
-						no : 
-							create a SS_KEY
-							round_robin to find the good server
-							create and put a SS in the SS map
-							rajouter un cookie dans la réponse
+			
+			/**
+			 * Sticky session case
+			 */
+			case Config.STRATEGY_SS:				
 
-				 */
+				String stickySessionId = null;
+				for(Cookie cookie : request.getCookies()) {
+					if(cookie.getAttribute(Config.STICKY_SESSION_ID) != null) {
+						stickySessionId = cookie.getAttribute(Config.STICKY_SESSION_ID);
+						setStickySessionCookie(cookie);
+						break;
+					}
+				}
 				
+				if(stickySessionId != null && stickySessions.get(stickySessionId) != null) {
+					setStickySession(stickySessions.get(stickySessionId));
+					setWorkerToBalance(getStickySession().getServerId());
+				} else {
+					lastServer = server.getLastRRServer();
+					setWorkerToBalance(getRoundRobinServer(workers, lastServer));
+					stickySessionId = SessionUtils.generateSessionKey(server.getConf().get(Config.PROXY, Config.NAME));
+					server.setLastSSServer(workerToBalance);
+					
+					Map<String, String> cookieProperties = new HashMap<>();
+					cookieProperties.put(Config.STICKY_SESSION_ID, stickySessionId);
+					
+					setStickySessionCookie(new Cookie(cookieProperties, true));
+					
+					setStickySession(new StickySession(stickySessionId, workerToBalance));
+					stickySessions.put(stickySessionId, stickySession);
+				}
 				
 				break;
 	
 			default:
+				logger.error("UNRECOGNIZED STRATEGY, PLEASE CONTACT YOUR ADMIN SYSTEM");
 				break;
 		}
+		
+		logger.info("worker to balance on : " + getWorkerToBalance());
 				
 	}
 
 	/**
-	 * balance request to the good worker
+	 * Balance request to the good worker
 	 */
 	@Override
 	public void execute(Request request) {
@@ -210,6 +232,11 @@ public class ProxyServerTask implements IWorkerTask {
 		for(String line : lines) {
 			sb.append(line + "\r\n");
 			if(line.contains(Config.CONTENT_TYPE)) {
+				if(stickySessionCookie.isNeedToBeSent()) {
+					sb.append(stickySessionCookie.getReadyToUse(
+							SessionUtils.getDateForCookie(server.getConf().get(Config.PROXY, Config.TIMEOUT))
+						));
+				}
 				sb.append("\r\n");
 			}
 		}
@@ -220,6 +247,33 @@ public class ProxyServerTask implements IWorkerTask {
 			SocketUtils.writeDatasIntoRequest(request, sb.toString());
 		} catch (IOException e) {
 			logger.error("Error on retrieving datas to the client server : ", e);
+		}
+	}
+	
+	/**
+	 * Get the next server with round_robin way
+	 */
+	private Integer getRoundRobinServer(List<Integer> workers, Integer lastServer) {
+		if(workers.size() > 0) {
+
+			if(lastServer != null) {
+				lastServer = workers.get(0);
+			}
+			
+			Iterator<Integer> it = workers.iterator();
+			Integer cw = null;
+			while(it.hasNext()) {
+				cw = it.next();
+				if(cw == lastServer) {
+					break;
+				}
+			}
+			
+			return it.hasNext() ? it.next() : workers.get(0);
+		}
+		else {
+			logger.error("NO worker available !!!");
+			return null;
 		}
 	}
 
@@ -253,6 +307,30 @@ public class ProxyServerTask implements IWorkerTask {
 
 	public void setWorkerToBalance(Integer workerToBalance) {
 		this.workerToBalance = workerToBalance;
+	}
+
+	public StickySession getStickySession() {
+		return stickySession;
+	}
+
+	public void setStickySession(StickySession stickySession) {
+		this.stickySession = stickySession;
+	}
+
+	public Map<String, StickySession> getStickySessions() {
+		return stickySessions;
+	}
+
+	public void setStickySessions(Map<String, StickySession> stickySessions) {
+		this.stickySessions = stickySessions;
+	}
+
+	public Cookie getStickySessionCookie() {
+		return stickySessionCookie;
+	}
+
+	public void setStickySessionCookie(Cookie stickySessionCookie) {
+		this.stickySessionCookie = stickySessionCookie;
 	}
 
 }

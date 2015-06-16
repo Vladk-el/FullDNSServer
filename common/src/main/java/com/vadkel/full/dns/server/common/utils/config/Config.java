@@ -23,6 +23,8 @@ public class Config {
 	
 	public static final String SESSION_COOKIE_GET_PROPERTY = "VLADKELHttpStaticGetProperty: ";
 	
+	public static final String STICKY_SESSION_ID = "VladkelStickySessionKey";
+	
 	public static final String DEFAULT_COOKIE_PATH = "FullDnsServer/com/vladkel/full/dns/server";
 	
 	public static final String TIMEOUT = "timeout";

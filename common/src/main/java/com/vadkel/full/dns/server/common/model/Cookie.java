@@ -9,7 +9,7 @@ public class Cookie {
 	
 	private Map<String, String> attributes;
 	
-	private boolean needToBeSent;
+	private boolean needToBeSent = false;
 	
 	public Cookie(Map<String, String> attributes, boolean needToBeSent) {
 		setAttributes(attributes == null ? new HashMap<>() : attributes);
@@ -42,7 +42,7 @@ public class Cookie {
 	}
 	
 	public String getReadyToUse(String expires) {
-		return Config.SET_COOKIE + toString();
+		return Config.SET_COOKIE + toString() + "expires=" + expires + ";\r\n";
 	}
 	
 	public String getAttribute(String key) {
