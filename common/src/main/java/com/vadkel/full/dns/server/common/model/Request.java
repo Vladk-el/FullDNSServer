@@ -73,7 +73,11 @@ public class Request implements IRequest {
 				//logger.info(s);
 
 				if(s.startsWith(Config.HOST)) {
-					setHost(s.replace(Config.HOST, ""));
+					String host = s.replace(Config.HOST, "");
+					if(host.contains(":")){
+						host = host.substring(0, host.indexOf(":"));
+					}
+					setHost(host);
 				}
 				else if(s.startsWith(Config.USER_AGENT)) {
 					setUserAgent(s.replace(Config.USER_AGENT, ""));

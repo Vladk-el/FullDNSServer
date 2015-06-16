@@ -60,7 +60,7 @@ public class ProxyServer implements IServer {
 					Config.Type.proxy.toString(), Config.PORT)));
 			logger.info(
 					"{} is now online and wait for connections . . . ",
-					conf.get(Config.Type.worker.toString(), Config.NAME));
+					conf.get(Config.Type.proxy.toString(), Config.NAME));
 
 			while (true) {
 				try {

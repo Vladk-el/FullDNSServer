@@ -232,7 +232,7 @@ public class ProxyServerTask implements IWorkerTask {
 		for(String line : lines) {
 			sb.append(line + "\r\n");
 			if(line.contains(Config.CONTENT_TYPE)) {
-				if(stickySessionCookie.isNeedToBeSent()) {
+				if(stickySessionCookie != null && stickySessionCookie.isNeedToBeSent()) {
 					sb.append(stickySessionCookie.getReadyToUse(
 							SessionUtils.getDateForCookie(server.getConf().get(Config.PROXY, Config.TIMEOUT))
 						));
