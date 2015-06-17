@@ -71,7 +71,7 @@ public class SessionServer implements IServer {
 					logger.info("client " + client + " connected");
 					handle(client);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Error on accepting client : ", e);
 				}
 			}
 
@@ -83,7 +83,7 @@ public class SessionServer implements IServer {
 					server.close();
 					logger.info("server offline");
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("Error on closing server : ", e);
 				}
 			}
 		}

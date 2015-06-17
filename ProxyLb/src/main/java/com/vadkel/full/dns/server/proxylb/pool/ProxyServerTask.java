@@ -1,6 +1,7 @@
 package com.vadkel.full.dns.server.proxylb.pool;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +35,7 @@ public class ProxyServerTask implements IWorkerTask {
 	
 	private StickySession stickySession;
 	
-	private Map<String, StickySession> stickySessions;
+	
 	
 	private Cookie stickySessionCookie;
 	
@@ -46,7 +47,6 @@ public class ProxyServerTask implements IWorkerTask {
 		loadBalancer = new HashMap<>();
 		workerToBalance = null;
 		stickySession = null;
-		stickySessions = new HashMap<>();
 		stickySessionCookie = null;
 	}
 	
@@ -59,7 +59,7 @@ public class ProxyServerTask implements IWorkerTask {
 	public void handle() {
 		Request request = new Request(socket);
 		if(request.init()) {
-			request.show();
+			//request.show();
 			manageSession(request);
 			execute(request);
 			
@@ -96,7 +96,7 @@ public class ProxyServerTask implements IWorkerTask {
 		 * Find and set the load balancer
 		 */
 		
-		System.out.println(Config.LOAD_BALANCER + " : " + Config.DOMAIN + " : " + request.getHost());
+		//System.out.println(Config.LOAD_BALANCER + " : " + Config.DOMAIN + " : " + request.getHost());
 		Integer currentLb = server.getConf().getNumberByTypeKeyAndLikeValue(
 				Config.LOAD_BALANCER, 
 				Config.DOMAIN, 
@@ -118,11 +118,15 @@ public class ProxyServerTask implements IWorkerTask {
 			 */
 			case Config.STRATEGY_RR:
 				
+				//System.out.println("last RR server : " + server.getLastRRServer());
+				
 				lastServer = server.getLastRRServer();
 				
 				setWorkerToBalance(getRoundRobinServer(workers, lastServer));
 				
 				server.setLastRRServer(workerToBalance);
+				
+				//System.out.println("last RR server : " + server.getLastRRServer());
 				
 				break;
 			
@@ -135,16 +139,20 @@ public class ProxyServerTask implements IWorkerTask {
 				for(Cookie cookie : request.getCookies()) {
 					if(cookie.getAttribute(Config.STICKY_SESSION_ID) != null) {
 						stickySessionId = cookie.getAttribute(Config.STICKY_SESSION_ID);
+						//System.out.println("stickySessionId : " + stickySessionId);
 						setStickySessionCookie(cookie);
+						//System.out.println("StickySessionCookie : " + cookie);
 						break;
 					}
 				}
 				
-				if(stickySessionId != null && stickySessions.get(stickySessionId) != null) {
-					setStickySession(stickySessions.get(stickySessionId));
+				if(stickySessionId != null && server.getStickySessions().get(stickySessionId) != null) {
+					//System.out.println("StickySession founded !");
+					setStickySession(server.getStickySessions().get(stickySessionId));
 					setWorkerToBalance(getStickySession().getServerId());
 				} else {
-					lastServer = server.getLastRRServer();
+					//System.out.println("StickySession not founded ==> create a new one");
+					lastServer = server.getLastSSServer();
 					setWorkerToBalance(getRoundRobinServer(workers, lastServer));
 					stickySessionId = SessionUtils.generateSessionKey(server.getConf().get(Config.PROXY, Config.NAME));
 					server.setLastSSServer(workerToBalance);
@@ -155,8 +163,10 @@ public class ProxyServerTask implements IWorkerTask {
 					setStickySessionCookie(new Cookie(cookieProperties, true));
 					
 					setStickySession(new StickySession(stickySessionId, workerToBalance));
-					stickySessions.put(stickySessionId, stickySession);
+					server.getStickySessions().put(stickySessionId, stickySession);
 				}
+				
+				logger.info("Use sticky session n° " + getStickySession().getId());
 				
 				break;
 	
@@ -165,7 +175,7 @@ public class ProxyServerTask implements IWorkerTask {
 				break;
 		}
 		
-		logger.info("worker to balance on : " + getWorkerToBalance());
+		logger.info("Request balanced on worker : " + getWorkerToBalance());
 				
 	}
 
@@ -182,15 +192,26 @@ public class ProxyServerTask implements IWorkerTask {
 		 * Connect to the balanced server
 		 */
 		
+		// seams good
 		try {
+			balancedSocket = new Socket();
+			balancedSocket.connect(
+					new InetSocketAddress(
+							server.getConf().get(Config.WORKER, getWorkerToBalance(), Config.IP), 
+							Integer.parseInt(server.getConf().get(Config.WORKER, getWorkerToBalance(), Config.PORT))
+					),
+					1000
+			);
 			
+			/*
 			balancedSocket = new Socket(
 					server.getConf().get(Config.WORKER, getWorkerToBalance(), Config.IP),
 					Integer.parseInt(server.getConf().get(Config.WORKER, getWorkerToBalance(), Config.PORT))
 				);
-			
+			*/
 		} catch (Exception e) {
 			logger.error("Error on connect to the balanced server : ", e);
+			return;
 		}
 		
 		/**
@@ -202,12 +223,13 @@ public class ProxyServerTask implements IWorkerTask {
 		}
 		sb.append("\r\n");
 		
-		System.out.println("Datas send to balanced server : " + sb.toString());
+		//System.out.println("Datas send to balanced server : " + sb.toString());
 		
 		try {
 			SocketUtils.writeDatasIntoSocket(balancedSocket, sb.toString());
 		} catch (IOException e) {
 			logger.error("Error on sending datas to the balanced server : ", e);
+			return;
 		}
 		
 		
@@ -220,6 +242,7 @@ public class ProxyServerTask implements IWorkerTask {
 			lines = SocketUtils.getDatasToStringTab(balancedSocket);
 		} catch (Exception e) {
 			logger.error("Error on reading response from the balanced server : ", e);
+			return;
 		}
 		
 		
@@ -234,19 +257,20 @@ public class ProxyServerTask implements IWorkerTask {
 			if(line.contains(Config.CONTENT_TYPE)) {
 				if(stickySessionCookie != null && stickySessionCookie.isNeedToBeSent()) {
 					sb.append(stickySessionCookie.getReadyToUse(
-							SessionUtils.getDateForCookie(server.getConf().get(Config.PROXY, Config.TIMEOUT))
+							SessionUtils.getDateForCookie(getLoadBalancer().get(Config.TIMEOUT))
 						));
 				}
 				sb.append("\r\n");
 			}
 		}
 		
-		System.out.println("Response from the balanced server : " + sb.toString());
+		//System.out.println("Response from the balanced server : " + sb.toString());
 		
 		try {
 			SocketUtils.writeDatasIntoRequest(request, sb.toString());
 		} catch (IOException e) {
 			logger.error("Error on retrieving datas to the client server : ", e);
+			return;
 		}
 	}
 	
@@ -256,14 +280,17 @@ public class ProxyServerTask implements IWorkerTask {
 	private Integer getRoundRobinServer(List<Integer> workers, Integer lastServer) {
 		if(workers.size() > 0) {
 
-			if(lastServer != null) {
+			if(lastServer == null) {
 				lastServer = workers.get(0);
 			}
+			
+			//System.out.println("lastServer : " + lastServer);
 			
 			Iterator<Integer> it = workers.iterator();
 			Integer cw = null;
 			while(it.hasNext()) {
 				cw = it.next();
+				//System.out.println("cw : " + cw);
 				if(cw == lastServer) {
 					break;
 				}
@@ -315,14 +342,6 @@ public class ProxyServerTask implements IWorkerTask {
 
 	public void setStickySession(StickySession stickySession) {
 		this.stickySession = stickySession;
-	}
-
-	public Map<String, StickySession> getStickySessions() {
-		return stickySessions;
-	}
-
-	public void setStickySessions(Map<String, StickySession> stickySessions) {
-		this.stickySessions = stickySessions;
 	}
 
 	public Cookie getStickySessionCookie() {

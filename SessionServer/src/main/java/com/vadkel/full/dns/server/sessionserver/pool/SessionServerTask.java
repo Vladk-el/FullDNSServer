@@ -39,7 +39,7 @@ public class SessionServerTask implements IWorkerTask {
 	public void handle() {
 		Request request = new Request(socket);
 		if(request.init()) {
-			request.show();
+			//request.show();
 			manageSession(request);
 			execute(request);
 			
@@ -79,13 +79,15 @@ public class SessionServerTask implements IWorkerTask {
 			else if(str.contains(Config.SESSION_COOKIE_GET_PROPERTY)) {
 				request.getWantedProperties().put(str.replaceAll(Config.SESSION_COOKIE_GET_PROPERTY, ""), null);
 			}
-		}		
+		}	
+		
+		logger.info("Requested session : " + request.getSessionId());
 	}
 
 	@Override
 	public void execute(Request request) {
 
-		logger.info(server.getSessions().get(request.getSessionId()).toString());
+		//logger.info(server.getSessions().get(request.getSessionId()).toString());
 		
 		StringBuilder sb = new StringBuilder();
 		
@@ -98,7 +100,7 @@ public class SessionServerTask implements IWorkerTask {
 			}
 		}
 		
-		System.out.println("Response : " + sb.toString());
+		//System.out.println("Response : " + sb.toString());
 		
 		/**
 		 * Write response

@@ -39,7 +39,7 @@ public class HttpStaticTask implements IWorkerTask {
 	public void handle() {
 		Request request = new Request(socket);
 		if(request.init()) { 
-			request.show();
+			//request.show();
 			manageSession(request);
 			execute(request);
 			
@@ -55,6 +55,8 @@ public class HttpStaticTask implements IWorkerTask {
 	}
 
 	public void manageSession(Request request) {
+				
+		logger.info("Requested content : " + request.getPath());
 		
 		boolean needSessionCookie = (request.getSessionId() == null) ? true : false;
 				
@@ -101,7 +103,7 @@ public class HttpStaticTask implements IWorkerTask {
 				/**
 				 * Jeu de test
 				 */
-				
+				/*
 				request.getPropertiesToSet().put("TEST", "HAHAHAHA");
 				request.getPropertiesToSet().put("TEST2", "HAHAHAHAHA2");
 				request.getPropertiesToSet().put("TEST3", "HAHAHAHAHAHA3");
@@ -109,7 +111,7 @@ public class HttpStaticTask implements IWorkerTask {
 				
 				request.getWantedProperties().put("TEST", null);
 				request.getWantedProperties().put("TEST3", null);
-				
+				*/
 				
 				/**
 				 * Connect to SessionServer
@@ -121,11 +123,6 @@ public class HttpStaticTask implements IWorkerTask {
 							Integer.parseInt(server.getConf().get(Config.SESSION, Config.PORT))
 						);
 					
-//					sessionSocket = new Socket();
-//					socket.connect(
-//							new InetSocketAddress(server.getConf().get(Config.SESSION, Config.IP),
-//									Integer.parseInt(server.getConf().get(Config.SESSION, Config.PORT))), 
-//							1000);
 				} catch (Exception e) {
 					logger.error("Error on connect to the Session server : ", e);
 				}
@@ -148,7 +145,8 @@ public class HttpStaticTask implements IWorkerTask {
 					sb.append(Config.SESSION_COOKIE_GET_PROPERTY + key +  "\r\n");
 				}
 				
-				System.out.println("Datas send to Session server : " + sb.toString());
+				//System.out.println("Datas send to Session server : " + sb.toString());
+				sb.append("\r\n");
 				
 				try {
 					SocketUtils.writeDatasIntoSocket(sessionSocket, sb.toString());
@@ -156,6 +154,7 @@ public class HttpStaticTask implements IWorkerTask {
 					logger.error("Error on sending datas to the Session server : ", e);
 				}
 				
+				//System.out.println("Writing ok, waiting for response . . .");
 				
 				/**
 				 * Read
@@ -168,11 +167,11 @@ public class HttpStaticTask implements IWorkerTask {
 					logger.error("Error on reading response from the Session server : ", e);
 				}
 				
-				System.out.println("Response from the Session server : ");
+				//System.out.println("Response from the Session server : ");
 				
 				for(String line : lines) {
 					if(line.contains(Config.SESSION_COOKIE_GET_PROPERTY)) {
-						System.out.println("\t" + line);
+						//System.out.println("\t" + line);
 						String [] tab = line.replaceAll(Config.SESSION_COOKIE_GET_PROPERTY, "")
 											.split("=");
 						if(tab.length == 2) {
@@ -194,6 +193,8 @@ public class HttpStaticTask implements IWorkerTask {
 			request.getCookies().add(cookie);
 		}
 		
+		logger.info("Associated session : " + request.getSessionId());
+		
 	}
 
 	public void execute(Request request) {
@@ -208,7 +209,7 @@ public class HttpStaticTask implements IWorkerTask {
 					) + 
 					request.getPath()
 				);
-				
+						
 		if(file.exists()) {
 			
 			StringBuilder sb = new StringBuilder();
@@ -237,7 +238,7 @@ public class HttpStaticTask implements IWorkerTask {
 				try {
 					request.getWriter().close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("Error on closing request writer : ", e);
 				}
 			}
 		} else {
@@ -245,9 +246,11 @@ public class HttpStaticTask implements IWorkerTask {
 			try {
 				request.getWriter().writeBytes("ressource inexistante");
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Error on writing defult error message : ", e);
 			}
 		}
+		
+		logger.info("Request status OK");
 	}
 	
 	public void showDirectory(File file, Request request, StringBuilder sb) throws IOException {

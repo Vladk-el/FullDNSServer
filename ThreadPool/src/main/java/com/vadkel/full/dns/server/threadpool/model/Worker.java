@@ -21,9 +21,9 @@ public class Worker extends Thread {
 	@Override
 	public void run() {
 		while(true) {
-			logger.info(id + "starts job");
+			logger.info(id + " starts job");
 			pool.nextJob().run();
-			logger.info(id + "ends job");
+			logger.info(id + " ends job");
 		}
 	}
 }

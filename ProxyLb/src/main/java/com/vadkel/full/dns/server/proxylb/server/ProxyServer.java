@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vadkel.full.dns.server.common.interfaces.IServer;
 import com.vadkel.full.dns.server.common.model.Request;
+import com.vadkel.full.dns.server.common.model.StickySession;
 import com.vadkel.full.dns.server.common.utils.config.Config;
 import com.vadkel.full.dns.server.common.utils.config.ConfigReader;
 import com.vadkel.full.dns.server.proxylb.pool.ProxyServerTask;
@@ -28,6 +31,8 @@ public class ProxyServer implements IServer {
 	
 	private Integer lastSSServer;
 	
+	private Map<String, StickySession> stickySessions;
+	
 	public ProxyServer() {
 		if(init()) {
 			run();
@@ -38,6 +43,7 @@ public class ProxyServer implements IServer {
 	public boolean init() {
 		setConf(null);
 		pool = new Pool();
+		stickySessions = new HashMap<>();
 		
 		try {
 			ConfigReader cr = new ConfigReader(new File("./").getAbsolutePath());
@@ -135,5 +141,13 @@ public class ProxyServer implements IServer {
 
 	public void setLastSSServer(Integer lastSSServer) {
 		this.lastSSServer = lastSSServer;
+	}
+	
+	public Map<String, StickySession> getStickySessions() {
+		return stickySessions;
+	}
+
+	public void setStickySessions(Map<String, StickySession> stickySessions) {
+		this.stickySessions = stickySessions;
 	}
 }
