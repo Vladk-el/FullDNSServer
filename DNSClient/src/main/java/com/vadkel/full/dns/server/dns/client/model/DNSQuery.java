@@ -38,7 +38,23 @@ public class DNSQuery {
 			queryID = (++id) % 65536;
 		}
 	}
-	
+
+
+	/**
+	 * Allows to create a query like : 
+	 *                 +---------------------------------------------------+
+	 *	    Header     | OPCODE=SQUERY                                     |
+	 *	               +---------------------------------------------------+
+	 *	    Question   | QNAME=SRI-NIC.ARPA., QCLASS=IN, QTYPE=A           |
+	 *	               +---------------------------------------------------+
+	 *	    Answer     | <empty>                                           |
+	 *	               +---------------------------------------------------+
+	 *	    Authority  | <empty>                                           |
+	 *	               +---------------------------------------------------+
+	 *	    Additional | <empty>                                           |
+	 *	               +---------------------------------------------------+
+	 *
+	 */
 	public byte[] buildQuery() {
 		ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(byteArrayOut);
@@ -90,6 +106,11 @@ public class DNSQuery {
 		}
 		return byteArrayOut.toByteArray();
 	}
+
+	
+	/**
+	 * Getters ands setters
+	 */
 
 	public static int getId() {
 		return id;
