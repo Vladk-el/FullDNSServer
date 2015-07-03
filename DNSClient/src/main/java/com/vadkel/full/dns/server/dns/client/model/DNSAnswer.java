@@ -28,8 +28,13 @@ public class DNSAnswer {
 
 		byte firstByte = dis.readByte();
 		
+		System.out.println("\tAnswer firstByte : " + firstByte);
+		
+		System.out.println("\tAnswer firstByte & DNS.TYPE_PTR : " + (firstByte & DNS.TYPE_PTR));
+		
 		// Check if we have a domain name pointer
 		if (0 != (firstByte & DNS.TYPE_PTR)) {
+			System.out.println("Domain name pointer");
 			// Domain name pointer
 			pointerPos = firstByte & DNS.LIMIT_SIZE_LABEL;
 			// read an ending 0
@@ -42,12 +47,15 @@ public class DNSAnswer {
 		
 		// Extract TYPE
 		queryType = dis.readShort();
+		System.out.println("queryType : " + queryType);
 
 		// Extract QCLASS
 		queryClass = dis.readShort();
+		System.out.println("queryClass : " + queryClass);
 		
 		// Extract TTL
 		ttl = dis.readInt();
+		System.out.println("ttl : " + ttl);
 		
 		// Extract IP ADDRESS
 		rrDataLength = dis.readShort();

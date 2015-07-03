@@ -19,6 +19,9 @@ public class DNSQuestion {
 	public DNSQuestion(DataInputStream dis) throws IOException {
 		// Extract domain name
 		byte firstByte = dis.readByte();
+		
+		System.out.println("Question firstByte : " + firstByte);
+		
 		domain = DNSUtils.extractDomainName(dis, firstByte);
 
 		// Extract TYPE

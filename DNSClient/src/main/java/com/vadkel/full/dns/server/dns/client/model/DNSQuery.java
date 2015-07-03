@@ -63,12 +63,12 @@ public class DNSQuery {
 			// ID
 			dataOut.writeShort(queryID);
 			
-			System.out.println("(0 << DNS.SHIFT_QUERY)" + DNS.SHIFT_QUERY + " : " + (0 << DNS.SHIFT_QUERY));
-			
-			System.out.println("(DNS.OPCODE_QUERY << DNS.SHIFT_OPCODE)" + DNS.OPCODE_QUERY + " ET " + DNS.SHIFT_OPCODE + " : " + (DNS.OPCODE_QUERY << DNS.SHIFT_OPCODE));
-			
-			System.out.println("(1 << DNS.SHIFT_RECURSE_PLEASE)" + DNS.SHIFT_RECURSE_PLEASE + " : " + (1 << DNS.SHIFT_RECURSE_PLEASE));
-			
+//			System.out.println("(0 << DNS.SHIFT_QUERY)" + DNS.SHIFT_QUERY + " : " + (0 << DNS.SHIFT_QUERY));
+//			
+//			System.out.println("(DNS.OPCODE_QUERY << DNS.SHIFT_OPCODE)" + DNS.OPCODE_QUERY + " ET " + DNS.SHIFT_OPCODE + " : " + (DNS.OPCODE_QUERY << DNS.SHIFT_OPCODE));
+//			
+//			System.out.println("(1 << DNS.SHIFT_RECURSE_PLEASE)" + DNS.SHIFT_RECURSE_PLEASE + " : " + (1 << DNS.SHIFT_RECURSE_PLEASE));
+//			
 			
 			// Flags
 			dataOut.writeShort((0 << DNS.SHIFT_QUERY) // 0 décallé de 15 car REQUETE ==> [0]000 0000 0000 0000

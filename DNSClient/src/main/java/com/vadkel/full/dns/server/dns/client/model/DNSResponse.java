@@ -64,11 +64,17 @@ public class DNSResponse {
 	public void parseHeader(DataInputStream dis) throws IOException {
 		System.out.println("*** parseHeader ***");
 		txnId = dis.readShort();
+		System.out.println("\t txnId : " + txnId);
 		flags = dis.readShort();
+		System.out.println("\t flags :" + flags);
 		numQuestions = dis.readShort();
+		System.out.println("\t numQuestions :" + numQuestions);
 		numRR = dis.readShort();
+		System.out.println("\t numRR : " + numRR);
 		numAuthRR = dis.readShort();
+		System.out.println("\t numAuthRR : " + numAuthRR);
 		numAuxRR = dis.readShort();
+		System.out.println("\t numAuxRR : " + numAuxRR);
 	}
 	
 	public void parseQuestions(DataInputStream dis) throws IOException {
@@ -82,9 +88,9 @@ public class DNSResponse {
 	}
 	
 	public void parseAnswers(DataInputStream dis) throws IOException {
-		System.out.println("*** read one answer ***");
+		System.out.println("*** parseAnswers ***");
 		for (int i = 0; i < numRR; i++) {
-			System.out.println("\t*** parseAnswers ***");
+			System.out.println("\t*** read one answer ***");
 			DNSAnswer answer = new DNSAnswer(dis);
 			System.out.println("\t\t" + answer.toString());
 			answers.add(answer);

@@ -4,6 +4,7 @@ package com.vadkel.full.dns.server.common.utils.dns;
  * @author eliott
  * sources : https://tools.ietf.org/html/rfc1034
  * 			 https://tools.ietf.org/html/rfc1035
+ * 			 http://www.zytrax.com/books/dns/ch15/
  *
  */
 public final class DNS {
