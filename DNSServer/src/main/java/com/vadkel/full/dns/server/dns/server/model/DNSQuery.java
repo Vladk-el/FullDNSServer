@@ -1,4 +1,4 @@
-package com.vadkel.full.dns.server.dns.client.model;
+package com.vadkel.full.dns.server.dns.server.model;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

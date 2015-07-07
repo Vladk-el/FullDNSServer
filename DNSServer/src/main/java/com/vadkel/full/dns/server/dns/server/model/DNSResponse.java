@@ -1,4 +1,4 @@
-package com.vadkel.full.dns.server.dns.client.model;
+package com.vadkel.full.dns.server.dns.server.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -95,6 +95,14 @@ public class DNSResponse {
 			System.out.println("\t\t" + answer.toString());
 			answers.add(answer);
 		}
+	}
+
+	public List<DNSQuestion> getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(List<DNSQuestion> questions) {
+		this.questions = questions;
 	}
 	
 }

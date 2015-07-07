@@ -17,6 +17,12 @@ public class Config {
 
 	public static final String DEFAULT_CONFIG_PATH = "conf/config.ini";
 	
+	public static final String DEFAULT_DOMAINS_PATH = "data";
+	
+	public static final String DEFAULT_GOOGLE_DNS_IP = "8.8.8.8";
+	
+	public static final Integer DEFAULT_GOOGLE_DNS_PORT = 53;
+	
 	public static final String SESSION_COOKIE_ID = "VladkelHttpStaticKey";
 	
 	public static final String SESSION_COOKIE_SET_PROPERTY = "VLADKELHttpStaticSetProperty: ";

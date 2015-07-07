@@ -1,4 +1,4 @@
-package com.vadkel.full.dns.server.dns.client.model;
+package com.vadkel.full.dns.server.dns.server.model;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -33,6 +33,14 @@ public class DNSQuestion {
 	
 	public String toString() {
 		return domain + " ### type : " + queryType + " ### class : " + queryClass; 
+	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 
 }
