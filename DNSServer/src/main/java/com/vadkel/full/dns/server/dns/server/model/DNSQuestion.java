@@ -20,7 +20,7 @@ public class DNSQuestion {
 		// Extract domain name
 		byte firstByte = dis.readByte();
 		
-		System.out.println("Question firstByte : " + firstByte);
+		//System.out.println("Question firstByte : " + firstByte);
 		
 		domain = DNSUtils.extractDomainName(dis, firstByte);
 

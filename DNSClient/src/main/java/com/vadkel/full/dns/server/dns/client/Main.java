@@ -9,6 +9,7 @@ import javax.print.attribute.ResolutionSyntax;
 
 import com.vadkel.full.dns.server.common.utils.dns.DNS;
 import com.vadkel.full.dns.server.common.utils.socket.SocketUtils;
+import com.vadkel.full.dns.server.dns.server.model.DNSAnswer;
 import com.vadkel.full.dns.server.dns.server.model.DNSQuery;
 import com.vadkel.full.dns.server.dns.server.model.DNSResponse;
 
@@ -23,7 +24,8 @@ public class Main {
         
         try {
 			// QueryDNS ==> 
-			DNSQuery query = new DNSQuery("google.fr", DNS.QTYPE_ANY, DNS.CLASS_IN);
+			//DNSQuery query = new DNSQuery("google.fr", DNS.QTYPE_ANY, DNS.CLASS_IN);
+        	DNSQuery query = new DNSQuery("my.website.com", DNS.QTYPE_ANY, DNS.CLASS_IN);
 			
 			/*
 			 * test
@@ -36,16 +38,19 @@ public class Main {
 			
 			socket.getOutputStream().write(datas);
 			socket.getOutputStream().flush();
-			//socket.getOutputStream().close();
 			
 			System.out.println("writing done");
-			
-			//Thread.sleep(10000);
 			
 			byte [] googleDataResponse = SocketUtils.readBytesIntoSocket(socket);
 			
 			DNSResponse response = new DNSResponse(googleDataResponse, googleDataResponse.length);
+			System.out.println("reading done");
 			
+			
+			System.out.println("Answers : ");
+			for(DNSAnswer answer : response.getAnswers()) {
+				System.out.println("\t" + answer.toString());
+			}
 			
 //			DatagramSocket socket = new DatagramSocket();			
 //			socket.setSoTimeout(5000);

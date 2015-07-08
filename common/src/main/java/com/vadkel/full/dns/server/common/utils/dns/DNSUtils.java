@@ -17,7 +17,7 @@ public class DNSUtils {
 		 * Read domain
 		 */
 		
-		System.out.println("extractDomainName firstByte passed : "+ firstByte);
+		//System.out.println("extractDomainName firstByte passed : "+ firstByte);
 		
 		while (true) {
 			
@@ -42,7 +42,7 @@ public class DNSUtils {
 			while (count-- > 0) {
 				byte b = dis.readByte();
 				char c = (char)b;
-				System.out.println("\t\t\t" + count + " : " + b + " ==> " + c);
+				//System.out.println("\t\t\t" + count + " : " + b + " ==> " + c);
 				sb.append(
 					c
 				);

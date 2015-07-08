@@ -1,13 +1,9 @@
-/**
- * 
- */
 package com.vadkel.full.dns.server.dns.server.model;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
 import com.vadkel.full.dns.server.common.utils.dns.DNS;
-import com.vadkel.full.dns.server.common.utils.dns.DNSUtils;
 
 /**
  * @author Eliott
@@ -28,37 +24,54 @@ public class DNSAnswer {
 
 		byte firstByte = dis.readByte();
 		
-		System.out.println("\tAnswer firstByte : " + firstByte);
+//		System.out.println("\tAnswer firstByte : " + firstByte);
+//		
+//		firstByte = dis.readByte();
+//		
+//		System.out.println("\tAnswer firstByte : " + firstByte);
+//		
+//		firstByte = dis.readByte();
+//		
+//		System.out.println("\tAnswer firstByte : " + firstByte);
+//		
+//		System.out.println("\tAnswer firstByte & DNS.TYPE_PTR : " + (firstByte & DNS.TYPE_PTR));
+//		
+//		// Check if we have a domain name pointer
+//		if (0 != (firstByte & DNS.TYPE_PTR)) {
+//			System.out.println("Domain name pointer");
+//			// Domain name pointer
+//			pointerPos = firstByte & DNS.LIMIT_SIZE_LABEL;
+//			// read an ending 0
+//			byte ending = dis.readByte();
+//			pointerPos = (pointerPos << 8) | ending; 
+//		} else {
+//			// this is a normal name
+//			domainName = DNSUtils.extractDomainName(dis, firstByte);
+//		}
 		
-		System.out.println("\tAnswer firstByte & DNS.TYPE_PTR : " + (firstByte & DNS.TYPE_PTR));
-		
-		// Check if we have a domain name pointer
-		if (0 != (firstByte & DNS.TYPE_PTR)) {
-			System.out.println("Domain name pointer");
-			// Domain name pointer
-			pointerPos = firstByte & DNS.LIMIT_SIZE_LABEL;
-			// read an ending 0
-			byte ending = dis.readByte();
-			pointerPos = (pointerPos << 8) | ending; 
-		} else {
-			// this is a normal name
-			domainName = DNSUtils.extractDomainName(dis, firstByte);
-		}
+		// read byte pointer location
+		dis.readByte();
 		
 		// Extract TYPE
 		queryType = dis.readShort();
-		System.out.println("queryType : " + queryType);
+		//System.out.println("queryType : " + queryType);
 
 		// Extract QCLASS
 		queryClass = dis.readShort();
-		System.out.println("queryClass : " + queryClass);
+		//System.out.println("queryClass : " + queryClass);
 		
 		// Extract TTL
 		ttl = dis.readInt();
-		System.out.println("ttl : " + ttl);
+		//System.out.println("ttl : " + ttl);
 		
 		// Extract IP ADDRESS
 		rrDataLength = dis.readShort();
+		System.out.println("SHOULD BE 4 : " + rrDataLength);
+		if(rrDataLength > 4) {
+			rrData = new byte[rrDataLength];
+			dis.read(rrData, 0, rrData.length - 4);
+			rrDataLength = 4;
+		}
 		if (rrDataLength > 0) {
 			rrData = new byte[rrDataLength];
 			dis.read(rrData, 0, rrData.length);

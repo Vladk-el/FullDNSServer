@@ -45,7 +45,6 @@ public class SocketUtils {
 
 	public static byte[] readBytesIntoSocket(Socket socket) throws IOException, InterruptedException {
 
-		System.out.println("read bytes ...");
 		DataInputStream dis = new DataInputStream(socket.getInputStream());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -57,7 +56,6 @@ public class SocketUtils {
 		}
 		
 		while ((count = dis.read(buffer)) > 0) {
-			System.out.println("read one time");
 			out.write(buffer, 0, count);
 			if(count < DEFAULT_BUFFER_SIZE)
 				break;

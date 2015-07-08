@@ -8,6 +8,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,8 @@ import com.vadkel.full.dns.server.common.interfaces.IWorkerTask;
 import com.vadkel.full.dns.server.common.model.DNSRequest;
 import com.vadkel.full.dns.server.common.model.Request;
 import com.vadkel.full.dns.server.common.utils.config.Config;
+import com.vadkel.full.dns.server.dns.server.model.DNSAnswerRecord;
+import com.vadkel.full.dns.server.dns.server.model.DNSIpAddress;
 import com.vadkel.full.dns.server.dns.server.model.DNSQuestion;
 import com.vadkel.full.dns.server.dns.server.model.DNSResponse;
 import com.vadkel.full.dns.server.dns.server.server.DNSServer;
@@ -94,7 +97,6 @@ public class DNSServerTask implements IWorkerTask {
 		
 		try {
 			
-			
 			response = new DNSResponse(request.getDatas(), request.getDataSize());
 			
 			if(response.getQuestions().size() > 0) {
@@ -105,11 +107,31 @@ public class DNSServerTask implements IWorkerTask {
 			logger.info("\t" + question.toString());
 			
 			domain = question.getDomain();
-			if(server.getDomains().get(question) != null) {
+			Map<String, String> ips = server.getDomains().get(domain);
+			
+			if(ips != null) {
 				// construct a response with founded domain name
+				
+				DNSAnswerRecord record = new DNSAnswerRecord(domain);
+				
+				for(String key : ips.keySet()) {
+					//System.out.println(key + " => " + ips.get(key));
+					record.addIp(new DNSIpAddress(ips.get(key)));
+				}
+				
+				/*
+				 * creates ips ok, now update 
+				 */
+				
+				byte[] localDataresponse = response.createResponseFromLocalRecord(record, response.getId());
+				
+				request.getSocket().getOutputStream().write(localDataresponse, 0, localDataresponse.length);
+				request.getSocket().getOutputStream().flush();
+				//System.out.println("sending response to client ok");
+				
 			} else {
 				// ask google dns and directly transfer the response
-				System.out.println("Asking google");
+				//System.out.println("Asking google");
 				
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(
@@ -119,8 +141,8 @@ public class DNSServerTask implements IWorkerTask {
 						Config.DEFAULT_GOOGLE_DNS_PORT
 				);
 				socket.send(packet);
-				System.out.println("Connected to google");
-				System.out.println("Sending datas ok");
+//				System.out.println("Connected to google");
+//				System.out.println("Sending datas ok");
 				
 				
 				byte[] buf = new byte[1000];
@@ -135,13 +157,13 @@ public class DNSServerTask implements IWorkerTask {
 //				socket.getOutputStream().write(request.getDatas());
 //				socket.getOutputStream().flush();
 //				System.out.println("Sending datas ok");
-				
-				//byte [] googleDataResponse = SocketUtils.readBytesIntoSocket(socket);
-				System.out.println("Reading response : size = " + responseDatas.getLength());
+//				
+//				byte [] googleDataResponse = SocketUtils.readBytesIntoSocket(socket);
+//				System.out.println("Reading response : size = " + responseDatas.getLength());
 				
 				request.getSocket().getOutputStream().write(googleDataResponse, 0, responseDatas.getLength());
 				request.getSocket().getOutputStream().flush();
-				System.out.println("sending response to client ok");
+				//System.out.println("sending response to client ok");
 				
 			}
 			

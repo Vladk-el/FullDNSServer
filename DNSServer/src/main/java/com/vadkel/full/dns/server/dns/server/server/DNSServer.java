@@ -151,8 +151,8 @@ public class DNSServer implements IServer {
 				Map<String, String> map = new HashMap<>();
 				
 				StringBuilder sb = new StringBuilder();
-				for(String str : location) {
-					sb.append(str);
+				for(int i = location.size() - 1; i > -1; i--) {
+					sb.append(location.get(i));
 					sb.append(".");
 				}
 				sb.deleteCharAt(sb.length() - 1);
