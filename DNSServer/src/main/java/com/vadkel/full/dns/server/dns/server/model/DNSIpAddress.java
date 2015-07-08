@@ -31,9 +31,10 @@ public class DNSIpAddress {
 		if(tab.length == IP_SIZE) {
 			for(int i = 0; i < IP_SIZE; i++) {
 				short c = Short.parseShort(tab[i]);
-				dos.writeShort(c);
+				dos.writeByte(c);
 			}
 			ip = out.toByteArray();
+			
 		} else {
 			ip = null;
 			throw new Exception (ip + " is not a valid ip address !");
@@ -42,11 +43,15 @@ public class DNSIpAddress {
 	
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append((int)ip[0]&0xFF); sb.append('.');
-		sb.append((int)ip[1]&0xFF); sb.append('.');
-		sb.append((int)ip[2]&0xFF); sb.append('.');
-		sb.append((int)ip[3]&0xFF);
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < ip.length; i++) {
+			sb.append((short)ip[i] & 0xFF);
+			sb.append('.');
+		}
+
+		sb.deleteCharAt(sb.length() - 1);
+		
 		return sb.toString();
 	}
 

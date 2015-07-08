@@ -188,11 +188,11 @@ public class DNSResponse {
 	}
 	
 	public void parseAnswers(DataInputStream dis) throws IOException {
-		//System.out.println("*** parseAnswers ***");
+//		System.out.println("*** parseAnswers ***");
 		for (int i = 0; i < numRR; i++) {
-			//System.out.println("\t*** read one answer ***");
+//			System.out.println("\t*** read one answer ***");
 			DNSAnswer answer = new DNSAnswer(dis);
-			System.out.println("\t\t" + answer.toString());
+//			System.out.println("\t\t" + answer.toString());
 			answers.add(answer);
 		}
 	}

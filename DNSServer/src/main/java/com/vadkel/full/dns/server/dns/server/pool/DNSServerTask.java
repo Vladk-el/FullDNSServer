@@ -115,8 +115,10 @@ public class DNSServerTask implements IWorkerTask {
 				DNSAnswerRecord record = new DNSAnswerRecord(domain);
 				
 				for(String key : ips.keySet()) {
-					//System.out.println(key + " => " + ips.get(key));
-					record.addIp(new DNSIpAddress(ips.get(key)));
+//					System.out.println(key + " => " + ips.get(key));
+					DNSIpAddress ip = new DNSIpAddress(ips.get(key));
+//					System.out.println(ip);
+					record.addIp(ip);
 				}
 				
 				/*

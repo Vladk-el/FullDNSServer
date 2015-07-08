@@ -66,7 +66,7 @@ public class DNSAnswer {
 		
 		// Extract IP ADDRESS
 		rrDataLength = dis.readShort();
-		System.out.println("SHOULD BE 4 : " + rrDataLength);
+//		System.out.println("SHOULD BE 4 : " + rrDataLength);
 		if(rrDataLength > 4) {
 			rrData = new byte[rrDataLength];
 			dis.read(rrData, 0, rrData.length - 4);
@@ -80,7 +80,7 @@ public class DNSAnswer {
 	}
 	
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		// domain name
 		if (isPointer()) {
 			sb.append("Ptr ");
@@ -89,11 +89,18 @@ public class DNSAnswer {
 			sb.append(domainName);
 		}
 		sb.append(':');
+		
 		// ip address
-		sb.append((int)rrData[0]&0xFF);sb.append('.');
-		sb.append((int)rrData[1]&0xFF);sb.append('.');
-		sb.append((int)rrData[2]&0xFF);sb.append('.');
-		sb.append((int)rrData[3]&0xFF);
+		for(int i = 0; i < rrData.length; i++) {
+			sb.append((short)rrData[i] & 0xFF);
+			sb.append('.');
+		}
+
+		sb.deleteCharAt(sb.length() - 1);
+//		sb.append((int)rrData[0]&0xFF);sb.append('.');
+//		sb.append((int)rrData[1]&0xFF);sb.append('.');
+//		sb.append((int)rrData[2]&0xFF);sb.append('.');
+//		sb.append((int)rrData[3]&0xFF);
 		
 		return sb.toString();
 	}

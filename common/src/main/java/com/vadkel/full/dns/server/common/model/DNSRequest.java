@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.vadkel.full.dns.server.common.model;
 
 import java.net.Socket;

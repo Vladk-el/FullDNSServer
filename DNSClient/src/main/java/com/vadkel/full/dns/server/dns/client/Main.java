@@ -24,8 +24,8 @@ public class Main {
         
         try {
 			// QueryDNS ==> 
-			//DNSQuery query = new DNSQuery("google.fr", DNS.QTYPE_ANY, DNS.CLASS_IN);
-        	DNSQuery query = new DNSQuery("my.website.com", DNS.QTYPE_ANY, DNS.CLASS_IN);
+			DNSQuery query = new DNSQuery("google.fr", DNS.QTYPE_ANY, DNS.CLASS_IN);
+        	//DNSQuery query = new DNSQuery("my.website.com", DNS.QTYPE_ANY, DNS.CLASS_IN);
 			
 			/*
 			 * test
