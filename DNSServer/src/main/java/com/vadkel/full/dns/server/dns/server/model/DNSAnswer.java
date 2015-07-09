@@ -22,8 +22,8 @@ public class DNSAnswer {
 	
 	public DNSAnswer(DataInputStream dis) throws IOException {
 
-		byte firstByte = dis.readByte();
-		
+//		byte firstByte = dis.readByte();
+//		
 //		System.out.println("\tAnswer firstByte : " + firstByte);
 //		
 //		firstByte = dis.readByte();
@@ -49,20 +49,23 @@ public class DNSAnswer {
 //			domainName = DNSUtils.extractDomainName(dis, firstByte);
 //		}
 		
+		// read byte pointer
+		dis.readByte();
+		
 		// read byte pointer location
 		dis.readByte();
 		
 		// Extract TYPE
 		queryType = dis.readShort();
-		//System.out.println("queryType : " + queryType);
+//		System.out.println("queryType : " + queryType);
 
 		// Extract QCLASS
 		queryClass = dis.readShort();
-		//System.out.println("queryClass : " + queryClass);
+//		System.out.println("queryClass : " + queryClass);
 		
 		// Extract TTL
 		ttl = dis.readInt();
-		//System.out.println("ttl : " + ttl);
+//		System.out.println("ttl : " + ttl);
 		
 		// Extract IP ADDRESS
 		rrDataLength = dis.readShort();

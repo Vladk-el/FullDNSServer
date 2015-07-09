@@ -31,7 +31,7 @@ public class Main {
 			 * test
 			 */
 			
-			Socket socket = new Socket("localhost", 8888);
+			Socket socket = new Socket("localhost", 53);
 			//Socket socket = new Socket("8.8.8.8", 53);
 			byte[] datas = query.buildQuery();
 			System.out.println("Length : " + datas.length);

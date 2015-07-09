@@ -103,14 +103,15 @@ public class DNSServerTask implements IWorkerTask {
 				question = response.getQuestions().get(0);
 			}
 			
-			logger.info("Question found : ");
-			logger.info("\t" + question.toString());
+			logger.info("Asking for : " + question.toString());
 			
 			domain = question.getDomain();
 			Map<String, String> ips = server.getDomains().get(domain);
 			
 			if(ips != null) {
 				// construct a response with founded domain name
+				
+				logger.info("\t=> Domain found in local.");
 				
 				DNSAnswerRecord record = new DNSAnswerRecord(domain);
 				
@@ -134,6 +135,8 @@ public class DNSServerTask implements IWorkerTask {
 			} else {
 				// ask google dns and directly transfer the response
 				//System.out.println("Asking google");
+				
+				logger.info("\t=> Domain don't found in local, asking google dns.");
 				
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(
