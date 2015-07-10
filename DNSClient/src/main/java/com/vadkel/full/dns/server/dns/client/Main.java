@@ -17,6 +17,7 @@ import com.vadkel.full.dns.server.dns.server.model.DNSResponse;
  * Hello world!
  *
  */
+@SuppressWarnings("unused")
 public class Main {
 	
     public static void main( String[] args ) {

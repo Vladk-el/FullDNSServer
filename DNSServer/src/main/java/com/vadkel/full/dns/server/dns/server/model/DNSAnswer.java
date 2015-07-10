@@ -10,6 +10,7 @@ import com.vadkel.full.dns.server.common.utils.dns.DNS;
  * Created on 2 juil. 2015
  *
  */
+@SuppressWarnings("unused")
 public class DNSAnswer {
 
 	private int pointerPos = 0;

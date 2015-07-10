@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.vadkel.full.dns.server.dns.server.pool;
 
 import java.io.IOException;
@@ -138,6 +135,7 @@ public class DNSServerTask implements IWorkerTask {
 				
 				logger.info("\t=> Domain don't found in local, asking google dns.");
 				
+				@SuppressWarnings("resource")
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(
 						request.getDatas(), 

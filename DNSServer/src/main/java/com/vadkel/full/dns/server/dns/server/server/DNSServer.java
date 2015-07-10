@@ -157,6 +157,7 @@ public class DNSServer implements IServer {
 				}
 				sb.deleteCharAt(sb.length() - 1);
 				
+				@SuppressWarnings("resource")
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String str = "";
 				while((str = br.readLine()) != null) {
