@@ -32,7 +32,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.vadkel.full.dns.server.httpstatic.Main</mainClass>
+							<mainClass>com.vadkel.full.dns.server.dns.server.Main</mainClass>
 						</manifest>
 					</archive>
 
@@ -42,7 +42,7 @@
 				</configuration>
 				<executions>
 					<execution>
-						<phase>com.vadkel.full.dns.server.httpstatic</phase>
+						<phase>com.vadkel.full.dns.server.dns.server</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
